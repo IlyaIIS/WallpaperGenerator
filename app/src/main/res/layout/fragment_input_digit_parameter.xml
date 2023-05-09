@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:background="@color/black">
+    <TextView
+        android:id="@+id/descriptionField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Числовой параметр: "
+        android:layout_centerVertical="true"
+        android:textSize="20sp"
+        android:textColor="@color/white"/>
+    <EditText
+        android:id="@+id/inputField"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        tools:text="3"
+        android:gravity="center"
+        android:layout_alignParentEnd="true"/>
+</RelativeLayout>

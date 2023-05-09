@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardCornerRadius="40dp"
+    tools:context=".ExportImageFragment"
+    android:layout_margin="17dp"
+    android:backgroundTint="#EE775599"
+    >
+    <LinearLayout
+        android:id="@+id/parametersPopupBackground"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="15dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Параметры"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="10dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/paramsList"
+            android:name="com.example.wallpapergenerator.GenerationSettingsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".GenerationSettingsFragment"
+            tools:listitem="@layout/fragment_item" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

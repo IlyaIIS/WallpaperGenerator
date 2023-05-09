@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="80dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="40dp"
+    tools:context=".ExportImageFragment">
+
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#AAAAAAAA"
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/imageButton5"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="10dp"
+            android:background="@color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/download_icon"
+            android:contentDescription="Download" />
+
+        <ImageButton
+            android:id="@+id/imageButton4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:background="@color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/set_wallpaper"
+            android:contentDescription="Set wallpaper" />
+
+        <ImageButton
+            android:id="@+id/imageButton3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@color/transparent"
+            android:src="@drawable/plus_icon"
+            android:contentDescription="Add" />
+
+        <ImageButton
+            android:id="@+id/expandButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:background="@color/transparent"
+            android:onClick="onExpandClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/export_icon"
+            android:contentDescription="Expand" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
