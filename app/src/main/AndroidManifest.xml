@@ -12,6 +12,11 @@
         android:theme="@style/Theme.WallpaperGenerator"
         tools:targetApi="31">
         <activity
+            android:name=".GalleryActivity"
+            android:exported="false"
+            android:label="@string/title_activity_gallery"
+            android:theme="@style/Theme.WallpaperGenerator.NoActionBar" />
+        <activity
             android:name=".GenerationActivity"
             android:exported="false" />
         <activity

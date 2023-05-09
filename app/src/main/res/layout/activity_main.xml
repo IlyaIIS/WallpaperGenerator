@@ -22,16 +22,16 @@
             android:elevation="20dp">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/toCollectionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:text="Коллекция"
+                android:text="Галерея"
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"/>
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/loginButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -48,25 +48,28 @@
             android:padding="10dp">
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/generationButtonGradients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Градиенты"
-                android:onClick="onGeneratorTypeClicked"/>
+                android:text="Градиенты" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/generationButtonShapes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Фигуры"
-                android:onClick="onGeneratorTypeClicked"/>
+                android:text="Фигуры" />
 
             <Button
-                android:id="@+id/button5"
+                android:id="@+id/generationButtonNoise"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Шум"
-                android:onClick="onGeneratorTypeClicked"/>
+                android:text="Шум" />
+
+            <Button
+                android:id="@+id/generationButtonFractals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Фракталы" />
         </LinearLayout>
 
     </LinearLayout>
