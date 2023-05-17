@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
+import kotlinx.coroutines.*
 
 
 class GenerationActivity : AppCompatActivity() {
@@ -65,6 +66,8 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         settingsFragment = supportFragmentManager.findFragmentById(R.id.settingsFragmentContainer) as GenerationSettingsFragment
+
+
     }
 
     fun updateGenerationName() {
@@ -114,7 +117,7 @@ class GenerationActivity : AppCompatActivity() {
         fun getPixels(): IntArray {
             return when (parameters.currentGenerationType) {
                 GenerationType.Gradients -> ImageGenerator.generateGradient(mainImage.width, mainImage.height, parameters.gradientParameters)
-                GenerationType.Shapes -> ImageGenerator.generateShapes(mainImage.width, mainImage.height)
+                GenerationType.Shapes -> ImageGenerator.generateShapes(mainImage.width, mainImage.height, parameters.shapeParameters)
                 GenerationType.Noise -> ImageGenerator.generateSinNoise(mainImage.width, mainImage.height, parameters.noiseParameters)
                 GenerationType.Fractals -> ImageGenerator.generateFractal(mainImage.width, mainImage.height, parameters.fractalParameters)
                 else -> throw NotImplementedError()
@@ -147,13 +150,11 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         if (isNextImageReady) {
-            println("Draw!!")
             drawPixels(nextPixels)
             isNextImageReady = false
             binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
             startGeneration()
         } else {
-            println("Overwhelmed!!")
             isWaitForImage = true
             binding.generationIndicator.setCardBackgroundColor(Color.RED)
         }
@@ -180,7 +181,7 @@ class GenerationActivity : AppCompatActivity() {
         var minColorsCount: Int,
         var maxColorsCount: Int,
         var colorsCount: Int,
-        var colors: IntArray
+        var colors: MutableList<Int>
     )
 
     data class FractalParameters(
@@ -198,6 +199,19 @@ class GenerationActivity : AppCompatActivity() {
         var bottomColor: Int,
     )
 
+    data class ShapeParameters(
+        var isBackgroundColorRandom: Boolean,
+        var backgroundColor: Int,
+        var minShapeCount: Int,
+        var maxShapeCount: Int,
+        var borderChance: Int,
+        var ableCircles: Boolean,
+        var ableRectangles: Boolean,
+        var ableTriangles: Boolean,
+        var ableLines: Boolean,
+        var ablePlanes: Boolean,
+    )
+
     class ParametersHolder : ViewModel() {
         lateinit var currentGenerationType: GenerationType
         val noiseParameters = NoiseParameters(
@@ -210,7 +224,7 @@ class GenerationActivity : AppCompatActivity() {
             3,
             7,
             4,
-            intArrayOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
+            mutableListOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
         )
         var fractalParameters = FractalParameters(
             ImageGenerator.Companion.FractalType.JuliaSet,
@@ -225,6 +239,14 @@ class GenerationActivity : AppCompatActivity() {
             Color.rgb(0, 200, 255),
             true,
             Color.GRAY
+        )
+        var shapeParameters = ShapeParameters(
+            false,
+            Color.WHITE,
+            5,
+            9,
+            50,
+            true, true, true, true, true,
         )
     }
 }

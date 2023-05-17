@@ -62,14 +62,14 @@ class ImageGenerator {
                     parameters.colorsCount
             }
 
-            fun getColorLArray() : IntArray {
+            fun getColorLArray() : List<Int> {
                 return if (parameters.isColorsRandom)
                     IntArray(getArraySize()) {
                         Color.rgb(
                             Random.nextInt(255),
                             Random.nextInt(255),
                             Random.nextInt(255))
-                    }
+                    }.toList()
                 else
                     parameters.colors
             }
@@ -196,7 +196,7 @@ class ImageGenerator {
             return pixels
         }
 
-        public enum class GradientType {
+        enum class GradientType {
             StrictLine,
             DuplicateLine,
             SplittedLine,
@@ -207,7 +207,7 @@ class ImageGenerator {
             StrictPoints,
         }
 
-        public var gradientTypeNames = arrayOf(
+        val gradientTypeNames = arrayOf(
             "Четкие линии",
             "Дублирующиеся линии",
             "Разделённые линии",
@@ -282,7 +282,7 @@ class ImageGenerator {
             JuliaSet
         }
 
-        var fractalTypeNames = arrayOf(
+        val fractalTypeNames = arrayOf(
             "Множество Жюлиа",
         )
 
@@ -292,7 +292,7 @@ class ImageGenerator {
             Lerp
         }
 
-        var fractalColoringTypeNames = arrayOf(
+        val fractalColoringTypeNames = arrayOf(
             "Модуль",
             "Синус",
             "Смешивание"
@@ -436,62 +436,95 @@ class ImageGenerator {
             return pixels
         }
 
-        fun generateShapes(xSize: Int, ySize: Int) : IntArray {
-            val angles = Array(3) { Random.nextFloat()* PI.toFloat()}
+        fun generateShapes(xSize: Int, ySize: Int, parameters: GenerationActivity.ShapeParameters) : IntArray {
+            val angles = Array(3) { Random.nextFloat()* PI.toFloat() }
+            val backgroundColor =
+                if (parameters.isBackgroundColorRandom)
+                    Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255))
+                else
+                    parameters.backgroundColor
+
             fun getRndShape(xBound: Int, yBound: Int, ableShapes: List<ShapeType>): IShape {
                 val pos = Point(Random.nextInt(xBound), Random.nextInt(yBound))
                 val angle = angles[Random.nextInt(angles.size)]
-                val thickness = if (Random.nextInt(2) == 0) Random.nextInt(3, 10).toFloat() else 0f
+                val thickness =
+                    if (Random.nextInt(100) + 1 <= parameters.borderChance)
+                        Random.nextInt(3, 10).toFloat()
+                    else
+                        0f
                 val color = Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255))
-                return when (ableShapes[Random.nextInt(ableShapes.size)]) {
-                    ShapeType.RECTANGLE -> Rectangle(pos,
-                        Random.nextInt(300, 1000).toFloat(),
-                        Random.nextInt(300, 1000).toFloat(),
-                        angle,
-                        thickness,
-                        color)
-                    ShapeType.CIRCLE -> Circle(pos,
-                        Random.nextInt(100, 500).toFloat(),
-                        thickness,
-                        color)
-                    ShapeType.TRIANGLE -> Triangle(pos,
-                        Random.nextInt(100, 500).toFloat(),
-                        angle,
-                        thickness,
-                        color)
-                    ShapeType.LINE -> Line(pos,
-                        angle,
-                        Random.nextInt(10, 50).toFloat(),
-                        if (Random.nextInt(3) == 0) Random.nextInt(2, 5).toFloat() else 0f,
-                        color)
-                    ShapeType.PLANE -> Plane(pos,
-                        angle,
-                        Random.nextInt(-1,2),
-                        thickness,
-                        color)
-                    else ->
-                        throw Exception("Нет реализации для фигуры")
-                }
+                if (ableShapes.size > 0)
+                    return when (ableShapes[Random.nextInt(ableShapes.size)]) {
+                        ShapeType.RECTANGLE -> Rectangle(pos,
+                            Random.nextInt(300, 1000).toFloat(),
+                            Random.nextInt(300, 1000).toFloat(),
+                            angle,
+                            thickness,
+                            color)
+                        ShapeType.CIRCLE -> Circle(pos,
+                            Random.nextInt(100, 500).toFloat(),
+                            thickness,
+                            color)
+                        ShapeType.TRIANGLE -> Triangle(pos,
+                            Random.nextInt(100, 500).toFloat(),
+                            angle,
+                            thickness,
+                            color)
+                        ShapeType.LINE -> Line(pos,
+                            angle,
+                            Random.nextInt(10, 50).toFloat(),
+                            if (Random.nextInt(3) == 0) Random.nextInt(2, 5).toFloat() else 0f,
+                            color)
+                        ShapeType.PLANE -> Plane(pos,
+                            angle,
+                            Random.nextInt(-1,2),
+                            thickness,
+                            color)
+                        else ->
+                            throw NotImplementedError()
+                    }
+                else
+                    return Line(pos, angle, 0f, 0f, Color.TRANSPARENT)
             }
 
             fun drawShapes(pixels: IntArray, shapes: Array<IShape>) {
+                if (parameters.backgroundColor != Color.WHITE)
+                    for(y in 0 until  ySize)
+                        for(x in 0 until xSize)
+                            pixels[x + y*xSize] = backgroundColor
                 for(y in 0 until  ySize)
                     for(x in 0 until xSize)
                         for(shape in shapes) {
                             if (shape.contains(Point(x, y))) {
-                                pixels[x + y * xSize] += shape.color
-                            }
-                            if (shape.thickness != 0f && abs(shape.getDistanceToBorder(Point(x, y))) <= shape.thickness) {
+                                pixels[x + y*xSize] += shape.color
+                            } else if (shape.thickness != 0f && abs(shape.getDistanceToBorder(Point(x, y))) <= shape.thickness) {
                                 pixels[x + y*xSize] = Color.WHITE;
                             }
                         }
             }
 
-            val pixels = IntArray(xSize*ySize)
+            fun getAbleShapes() : List<ShapeType> {
+                val ableShapes = mutableListOf<ShapeType>()
+                if (parameters.ableCircles)
+                    ableShapes.add(ShapeType.CIRCLE)
+                if (parameters.ableRectangles)
+                    ableShapes.add(ShapeType.RECTANGLE)
+                if (parameters.ableTriangles)
+                    ableShapes.add(ShapeType.TRIANGLE)
+                if (parameters.ableLines)
+                    ableShapes.add(ShapeType.LINE)
+                if (parameters.ablePlanes)
+                    ableShapes.add(ShapeType.PLANE)
 
-            val ableShapes = listOf(ShapeType.TRIANGLE, ShapeType.RECTANGLE, ShapeType.CIRCLE,
-                ShapeType.LINE, ShapeType.PLANE)
-            val shapes = Array<IShape>(Random.nextInt(5, 9)) {getRndShape(xSize, ySize, ableShapes)}
+                return ableShapes
+            }
+
+            val pixels = IntArray(xSize*ySize)
+            val ableShapes = getAbleShapes()
+
+            val shapes = Array(Random.nextInt(parameters.minShapeCount, parameters.maxShapeCount+1)) {
+                getRndShape(xSize, ySize, ableShapes)
+            }
             drawShapes(pixels, shapes)
 
             return pixels
@@ -513,6 +546,13 @@ class ImageGenerator {
             LINE,
             PLANE
         }
+        val ShapeTypeNames = arrayOf(
+            "Треугольник",
+            "Прямоугольник",
+            "Круг",
+            "Линия",
+            "Плоскость"
+        )
         class Rectangle(
             override var pos: Point,
             var width: Float,

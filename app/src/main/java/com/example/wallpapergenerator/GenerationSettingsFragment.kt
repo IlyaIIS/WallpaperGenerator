@@ -3,7 +3,6 @@ package com.example.wallpapergenerator
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -14,7 +13,7 @@ import com.example.wallpapergenerator.ImageGenerator.Companion.gradientTypeNames
 import com.example.wallpapergenerator.databinding.FragmentGenerationParametersBinding
 import com.example.wallpapergenerator.ImageGenerator.Companion.FractalColoringType
 import java.lang.Integer.max
-import java.lang.Integer.min
+import kotlin.random.Random
 
 
 class GenerationSettingsFragment : Fragment() {
@@ -58,7 +57,9 @@ class GenerationSettingsFragment : Fragment() {
             if (!parametersHolder.noiseParameters.isLevelCountRandom)
                 params.add(
                     InputDigitParameter(
-                        "Количество слоёв", parametersHolder.noiseParameters.levelCount
+                        "Количество слоёв",
+                        parametersHolder.noiseParameters.levelCount,
+                        1, 9999
                     ) { number -> parametersHolder.noiseParameters.levelCount = number }
                 )
 
@@ -98,7 +99,71 @@ class GenerationSettingsFragment : Fragment() {
             }
 
         } else if (parametersHolder.currentGenerationType == GenerationType.Shapes) {
-            params = mutableListOf<GenerationParameter>()
+            params = mutableListOf<GenerationParameter>(
+                CheckboxParameter(
+                    "Случайный фон",
+                    parametersHolder.shapeParameters.isBackgroundColorRandom
+                ) {
+                    isChecked ->  parametersHolder.shapeParameters.isBackgroundColorRandom = isChecked
+                    updateParameters()
+                }
+            )
+            if (!parametersHolder.shapeParameters.isBackgroundColorRandom) {
+                params.add (
+                    ColorParameter(
+                        "Цвет заднего фона",
+                        parametersHolder.shapeParameters.backgroundColor
+                    ) { color ->  parametersHolder.shapeParameters.backgroundColor = color }
+                )
+            }
+            params.add (
+                InputDigitRangeParameter(
+                    "Число фигур",
+                    parametersHolder.shapeParameters.minShapeCount,
+                    parametersHolder.shapeParameters.maxShapeCount,
+                    1, 20
+                ) { numberFrom, numberTo ->
+                    parametersHolder.shapeParameters.minShapeCount = numberFrom
+                    parametersHolder.shapeParameters.maxShapeCount = numberTo
+                }
+            )
+            params.add (
+                InputDigitParameter(
+                "Шанс появления границы",
+                parametersHolder.shapeParameters.borderChance,
+                    0, 100
+            ) { number ->  parametersHolder.shapeParameters.borderChance = number  }
+            )
+            params.add (
+                CheckboxParameter(
+                    "Круги",
+                    parametersHolder.shapeParameters.ableCircles
+                ) { isChecked ->  parametersHolder.shapeParameters.ableCircles = isChecked }
+            )
+            params.add (
+                CheckboxParameter(
+                    "Прямоугольники",
+                    parametersHolder.shapeParameters.ableRectangles
+                ) { isChecked ->  parametersHolder.shapeParameters.ableRectangles = isChecked }
+            )
+            params.add (
+                CheckboxParameter(
+                    "Треугольники",
+                    parametersHolder.shapeParameters.ableTriangles
+                ) { isChecked ->  parametersHolder.shapeParameters.ableTriangles = isChecked }
+            )
+            params.add (
+                CheckboxParameter(
+                    "Линии",
+                    parametersHolder.shapeParameters.ableLines
+                ) { isChecked ->  parametersHolder.shapeParameters.ableLines = isChecked }
+            )
+            params.add (
+                CheckboxParameter(
+                    "Плоскости",
+                    parametersHolder.shapeParameters.ablePlanes
+                ) { isChecked ->  parametersHolder.shapeParameters.ablePlanes = isChecked }
+            )
 
         } else if (parametersHolder.currentGenerationType == GenerationType.Gradients) {
             params = mutableListOf<GenerationParameter>(
@@ -119,28 +184,31 @@ class GenerationSettingsFragment : Fragment() {
             )
             if (parametersHolder.gradientParameters.isColorsRandom) {
                 params.add(
-                    InputDigitParameter(
-                        "Не меньше чем",
-                        parametersHolder.gradientParameters.minColorsCount
-                    ) { number -> parametersHolder.gradientParameters.minColorsCount = number }
-                )
-                params.add(
-                    InputDigitParameter(
-                        "Не больше чем",
-                        parametersHolder.gradientParameters.maxColorsCount
-                    ) { number -> parametersHolder.gradientParameters.maxColorsCount = number }
+                    InputDigitRangeParameter(
+                        "Число цветов",
+                        parametersHolder.gradientParameters.minColorsCount,
+                        parametersHolder.gradientParameters.maxColorsCount,
+                        2, 9999
+                    ) { numberFrom, numberTo ->
+                        parametersHolder.gradientParameters.minColorsCount = numberFrom
+                        parametersHolder.gradientParameters.maxColorsCount = numberTo
+                    }
                 )
             } else {
                 params.add(
                     InputDigitParameter(
                         "Число цветов",
-                        parametersHolder.gradientParameters.minColorsCount
-                    ) {
-                        number -> parametersHolder.gradientParameters.colorsCount = number
+                        parametersHolder.gradientParameters.colorsCount,
+                        2, 30
+                    ) { number ->
+                        parametersHolder.gradientParameters.colorsCount = number
+                        for(i in parametersHolder.gradientParameters.colors.size until number)
+                            parametersHolder.gradientParameters.colors.add(
+                                Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255)))
                         updateParameters()
                     }
                 )
-                for (i in 0 until parametersHolder.gradientParameters.minColorsCount) {
+                for (i in 0 until parametersHolder.gradientParameters.colorsCount) {
                     params.add(
                         ColorParameter(
                             "Цвет №$i",
@@ -171,7 +239,8 @@ class GenerationSettingsFragment : Fragment() {
             params.add(
                 InputDigitParameter(
                     "Макс. глубина",
-                    parametersHolder.fractalParameters.depth
+                    parametersHolder.fractalParameters.depth,
+                    1, 300
                 ) { number -> parametersHolder.fractalParameters.depth = number }
             )
             params.add(
@@ -187,8 +256,9 @@ class GenerationSettingsFragment : Fragment() {
                 params.add(
                     InputDigitParameter(
                         "Зум",
-                        parametersHolder.fractalParameters.zoom
-                    ) { number -> parametersHolder.fractalParameters.zoom = min(100, max(0, number)) }
+                        parametersHolder.fractalParameters.zoom,
+                        0, 100
+                    ) { number -> parametersHolder.fractalParameters.zoom = number }
                 )
             }
             params.add(
@@ -204,14 +274,16 @@ class GenerationSettingsFragment : Fragment() {
                 params.add(
                     InputDigitParameter(
                         "X отступ",
-                        parametersHolder.fractalParameters.offsetX
-                    ) { number -> parametersHolder.fractalParameters.offsetX = min(100, max(0, number)) }
+                        parametersHolder.fractalParameters.offsetX,
+                        0, 100
+                    ) { number -> parametersHolder.fractalParameters.offsetX = number }
                 )
                 params.add(
                     InputDigitParameter(
                         "Y отступ",
-                        parametersHolder.fractalParameters.offsetY
-                    ) { number -> parametersHolder.fractalParameters.offsetY = min(100, max(0, number)) }
+                        parametersHolder.fractalParameters.offsetY,
+                        0, 100
+                    ) { number -> parametersHolder.fractalParameters.offsetY = number }
                 )
             }
             if (parametersHolder.fractalParameters.coloringType == FractalColoringType.Lerp) {
