@@ -13,6 +13,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.toCollectionButton.setOnClickListener {
+            val intent = Intent(this, GalleryActivity::class.java)
+            startActivity(intent)
+        }
+
+        //generation buttons listeners
         binding.generationButtonGradients.setOnClickListener {
             goToGenerationAction(GenerationType.Gradients)
         }
