@@ -17,18 +17,20 @@ import kotlinx.coroutines.*
 
 class GenerationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGenerationBinding
-    private lateinit var nextPixels: IntArray
     private lateinit var mainImage: ImageView
     private var isWaitForImage = false
     private var isNextImageReady = false
     private lateinit var parameters: ParametersHolder
     private lateinit var settingsFragment: GenerationSettingsFragment
+    lateinit var viewModel: GenerationActivityViewModel
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGenerationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        viewModel = ViewModelProvider(this)[GenerationActivityViewModel::class.java]
 
         parameters = ViewModelProvider(this)[ParametersHolder::class.java]
         mainImage = binding.mainImage
@@ -132,25 +134,25 @@ class GenerationActivity : AppCompatActivity() {
                     binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
                     isWaitForImage = false
                     runOnUiThread {
-                        drawPixels(pixels)
+                        drawImage(pixels)
                     }
                     startGeneration()
                 } else {
                     binding.generationIndicator.setCardBackgroundColor(Color.TRANSPARENT)
                     isNextImageReady = true
-                    nextPixels = pixels
+                    viewModel.nextImage = pixels
                 }
             }.start()
         }
 
-        if (!::nextPixels.isInitialized) {
+        if (!viewModel.isNextImageInitialized) {
             binding.generationIndicator.setCardBackgroundColor(Color.RED)
-            nextPixels = getPixels()
+            viewModel.nextImage = getPixels()
             isNextImageReady = true
         }
 
         if (isNextImageReady) {
-            drawPixels(nextPixels)
+            drawImage(viewModel.nextImage)
             isNextImageReady = false
             binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
             startGeneration()
@@ -160,9 +162,40 @@ class GenerationActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawPixels(pixels: IntArray) {
+    class GenerationActivityViewModel : ViewModel() {
+        private val viewModelScope = CoroutineScope(Dispatchers.Main)
+        lateinit var currentImage : IntArray
+        lateinit var nextImage: IntArray
+        var isNextImageInitialized = ::nextImage.isInitialized
+
+        fun saveImage() {
+            println(::currentImage.isInitialized)
+            if (::currentImage.isInitialized)
+                println(currentImage)
+        }
+
+        fun addImageToGallery() {
+
+        }
+
+        fun shareImage() {
+
+        }
+
+        fun setImageAsWallpaper() {
+
+        }
+
+        override fun onCleared() {
+            super.onCleared()
+            viewModelScope.cancel()
+        }
+    }
+
+    private fun drawImage(image: IntArray) {
+        viewModel.currentImage = image
         val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
-        bitmap.setPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         mainImage.setImageBitmap(bitmap)
     }
 

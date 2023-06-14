@@ -16,70 +16,91 @@ import com.example.wallpapergenerator.parameters.ColorParameterFragment
 import com.google.android.material.textview.MaterialTextView
 
 class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.ListAdapter<GenerationParameter,
-        GenerationSettingsRecyclerViewAdapter.MyViewHolder>(MyDiffUtil())  {
+        GenerationSettingsRecyclerViewAdapter.SettingsViewHolder>(MyDiffUtil())  {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : MyViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : SettingsViewHolder {
         return when (viewType) {
-            0 -> MyViewHolder(LayoutInflater.from(parent.context)
+            0 -> CheckBoxViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_checkbox_parameter, parent, false))
-            1 -> MyViewHolder(LayoutInflater.from(parent.context)
+            1 -> DropdownViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_dropdown_parameter, parent, false))
-            2 -> MyViewHolder(LayoutInflater.from(parent.context)
+            2 -> InputDigitViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_input_digit_parameter, parent, false))
-            3 -> MyViewHolder(LayoutInflater.from(parent.context)
+            3 -> InputDigitRangeViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_input_digit_range_parameter, parent, false))
-            4 -> MyViewHolder(LayoutInflater.from(parent.context)
+            4 -> ColorViewHolder(LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_conteiner_view, parent, false))
             else -> throw NotImplementedError()
         }
     }
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        when(val parameter = currentList[position]) {
+    override fun onBindViewHolder(holder: SettingsViewHolder, position: Int) {
+        holder.initialize(currentList[position])
+    }
 
-            is CheckboxParameter -> {
-                val checkBox = holder.itemView as CheckBox
-                checkBox.setOnCheckedChangeListener { _, isChecked -> parameter.onCheckboxChanged?.invoke(isChecked) }
+    override fun getItemViewType(position: Int): Int {
+        return when(currentList[position]::class) {
+            CheckboxParameter::class -> 0
+            DropdownParameter::class -> 1
+            InputDigitParameter::class -> 2
+            InputDigitRangeParameter::class -> 3
+            ColorParameter::class -> 4
+            else -> throw NotImplementedError()
+        }
+    }
+
+    sealed class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        abstract fun initialize(parameter: GenerationParameter)
+    }
+
+    class CheckBoxViewHolder(itemView: View) : SettingsViewHolder(itemView) {
+        override fun initialize(parameter: GenerationParameter) {
+            if (parameter is CheckboxParameter) {
+                val checkBox = itemView as CheckBox
+                checkBox.setOnCheckedChangeListener { _, isChecked ->
+                    parameter.onCheckboxChanged?.invoke(isChecked)
+                }
                 checkBox.text = parameter.text
                 checkBox.isChecked = parameter.isChecked
             }
+        }
+    }
 
-            is DropdownParameter -> {
-                holder.itemView.findViewById<MaterialTextView>(R.id.descriptionField).text = parameter.text
-                val view = holder.itemView.findViewById<Spinner>(R.id.spinnerDropdown)
-                view.setSelection(parameter.index)
-                val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                    holder.itemView.context,
-                    android.R.layout.simple_spinner_item, parameter.options
-                )
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                view.adapter = adapter
-
-                view.onItemSelectedListener =
-                    object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected( parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                            parameter.onOptionSelected?.invoke(position)
-                        }
-
-                        override fun onNothingSelected(p0: AdapterView<*>?) {}
-                    }
+    class DropdownViewHolder(itemView: View) : SettingsViewHolder(itemView) {
+        override fun initialize(parameter: GenerationParameter) {
+            if (parameter is ColorParameter) {
+                val view = (itemView as FragmentContainerView)
+                view.id = R.id.viewFragmentContainer + parameter.text.hashCode()//View.generateViewId()
+                val fragmentManager = (itemView.context as AppCompatActivity).supportFragmentManager
+                if ((fragmentManager.findFragmentByTag(parameter.text) == null)) {
+                    val fragment = ColorParameterFragment(
+                        parameter.text,
+                        parameter.color,
+                        parameter.onColorChanged
+                    )
+                    fragmentManager.beginTransaction().replace(view.id, fragment, parameter.text).commit()
+                }
             }
+        }
+    }
 
-            is InputDigitParameter -> {
+    class InputDigitViewHolder(itemView: View) : SettingsViewHolder(itemView) {
+        override fun initialize(parameter: GenerationParameter) {
+            if (parameter is InputDigitParameter) {
                 fun applyChanges(inputField: EditText, parameter: InputDigitParameter) {
                     val value = inputField.text.toString().toInt()
                     val validateValue = value.coerceIn(parameter.minValue, parameter.maxValue)
                     if (value != validateValue)
                         inputField.setText(validateValue.toString())
                     parameter.onInputEntered?.invoke(validateValue)
-                    val inputMethodManager = holder.itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    inputMethodManager.hideSoftInputFromWindow(holder.itemView.windowToken, 0)
+                    val inputMethodManager = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.hideSoftInputFromWindow(itemView.windowToken, 0)
                 }
-                val inputField = holder.itemView.findViewById<EditText>(R.id.inputField)
+                val inputField = itemView.findViewById<EditText>(R.id.inputField)
                 inputField.setOnFocusChangeListener { _, isFocused ->
                     if (isFocused) {
-                        val inputMethodManager = holder.itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        inputMethodManager.showSoftInput(holder.itemView, InputMethodManager.SHOW_IMPLICIT)
+                        val inputMethodManager = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        inputMethodManager.showSoftInput(itemView, InputMethodManager.SHOW_IMPLICIT)
                     } else {
                         applyChanges(inputField, parameter)
                     }
@@ -93,10 +114,14 @@ class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.Lis
                 })
 
                 inputField.setText(parameter.number.toString())
-                holder.itemView.findViewById<MaterialTextView>(R.id.descriptionField).text = parameter.text
+                itemView.findViewById<MaterialTextView>(R.id.descriptionField).text = parameter.text
             }
+        }
+    }
 
-            is InputDigitRangeParameter -> {
+    class InputDigitRangeViewHolder(itemView: View) : SettingsViewHolder(itemView) {
+        override fun initialize(parameter: GenerationParameter) {
+            if (parameter is InputDigitRangeParameter) {
                 fun applyChanges(inputFieldFrom: EditText, inputFieldTo: EditText, parameter: InputDigitRangeParameter) {
                     val valueFrom = inputFieldFrom.text.toString().toInt()
                     val valueTo = inputFieldTo.text.toString().toInt()
@@ -107,18 +132,18 @@ class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.Lis
                     if (valueTo != validateValueTo)
                         inputFieldTo.setText(validateValueTo.toString())
                     parameter.onInputEntered?.invoke(validateValueFrom, validateValueTo)
-                    val inputMethodManager = holder.itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    inputMethodManager.hideSoftInputFromWindow(holder.itemView.windowToken, 0)
+                    val inputMethodManager = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.hideSoftInputFromWindow(itemView.windowToken, 0)
                 }
 
-                val inputFieldFrom = holder.itemView.findViewById<EditText>(R.id.inputFieldFrom)
-                val inputFieldTo = holder.itemView.findViewById<EditText>(R.id.inputFieldTo)
+                val inputFieldFrom = itemView.findViewById<EditText>(R.id.inputFieldFrom)
+                val inputFieldTo = itemView.findViewById<EditText>(R.id.inputFieldTo)
 
                 fun setHandleEvents(inputField: EditText) {
                     inputField.setOnFocusChangeListener { _, isFocused ->
                         if (isFocused) {
-                            val inputMethodManager = holder.itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                            inputMethodManager.showSoftInput(holder.itemView, InputMethodManager.SHOW_IMPLICIT)
+                            val inputMethodManager = itemView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            inputMethodManager.showSoftInput(itemView, InputMethodManager.SHOW_IMPLICIT)
                         } else {
                             applyChanges(inputFieldFrom, inputFieldTo, parameter)
                         }
@@ -137,13 +162,17 @@ class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.Lis
 
                 inputFieldFrom.setText(parameter.numberFrom.toString())
                 inputFieldTo.setText(parameter.numberTo.toString())
-                holder.itemView.findViewById<MaterialTextView>(R.id.descriptionField).text = parameter.text
+                itemView.findViewById<MaterialTextView>(R.id.descriptionField).text = parameter.text
             }
+        }
+    }
 
-            is ColorParameter -> {
-                val view = (holder.itemView as FragmentContainerView)
+    class ColorViewHolder(itemView: View) : SettingsViewHolder(itemView) {
+        override fun initialize(parameter: GenerationParameter) {
+            if (parameter is ColorParameter) {
+                val view = (itemView as FragmentContainerView)
                 view.id = R.id.viewFragmentContainer + parameter.text.hashCode()//View.generateViewId()
-                val fragmentManager = (holder.itemView.context as AppCompatActivity).supportFragmentManager
+                val fragmentManager = (itemView.context as AppCompatActivity).supportFragmentManager
                 if ((fragmentManager.findFragmentByTag(parameter.text) == null)) {
                     val fragment = ColorParameterFragment(
                         parameter.text,
@@ -153,24 +182,7 @@ class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.Lis
                     fragmentManager.beginTransaction().replace(view.id, fragment, parameter.text).commit()
                 }
             }
-
-            else -> throw NotImplementedError()
         }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return when(currentList[position]::class) {
-            CheckboxParameter::class -> 0
-            DropdownParameter::class -> 1
-            InputDigitParameter::class -> 2
-            InputDigitRangeParameter::class -> 3
-            ColorParameter::class -> 4
-            else -> throw NotImplementedError()
-        }
-    }
-
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
     }
 
     class MyDiffUtil() : DiffUtil.ItemCallback<GenerationParameter>() {
