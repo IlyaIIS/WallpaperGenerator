@@ -20,7 +20,7 @@ interface Repository {
 
 class RepositoryImpl @Inject constructor(private val api: ApiService, private val client: OkHttpClient): Repository {
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int) {
-        println("<><><><><><><><><><><><><><><><><><><><>")
+        println("send image...")
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         bitmap.copyPixelsFromBuffer(IntBuffer.wrap(image))
@@ -28,9 +28,12 @@ class RepositoryImpl @Inject constructor(private val api: ApiService, private va
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val requestBody = RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray())
 
-        val imagePart = MultipartBody.Part.createFormData("imageFile", byteArrayOutputStream.toByteArray().size.toString(), requestBody)
+        val imagePart = MultipartBody.Part.createFormData("imageFile", "image", requestBody)
 
-        api.sendIntArray(imagePart).enqueue(object : Callback<ResponseBody> {
+        val params = HashMap<String, RequestBody>()
+        params["length"] = RequestBody.create(MediaType.parse("text/plain"),byteArrayOutputStream.toByteArray().size.toString())
+
+        api.sendImage(params, imagePart).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 println("11111111111111111")// Обработка успешного ответа сервера
             }
