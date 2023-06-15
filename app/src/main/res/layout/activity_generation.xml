@@ -107,15 +107,15 @@
         tools:background="@color/black"
         tools:text="Next Image Generation Zone" />
 
-    <androidx.cardview.widget.CardView
+    <ImageView
         android:id="@+id/generationIndicator"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="30dp"
+        android:layout_height="40dp"
+        app:srcCompat="@drawable/hourglass_icon"
         app:layout_constraintTop_toBottomOf="@+id/header"
         app:layout_constraintEnd_toEndOf="@+id/header"
-        tools:backgroundTint="@color/transparent"
-        app:cardElevation="0dp"
-        />
+        app:tint="@color/transparent"
+        tools:tint="@color/black"/>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/settingsFragmentContainer"

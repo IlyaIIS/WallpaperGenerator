@@ -12,20 +12,28 @@ import android.view.ViewGroup
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.wallpapergenerator.adapters.GalleryAdapter
 import com.example.wallpapergenerator.databinding.FragmentFirstBinding
-import com.example.wallpapergenerator.network.ApiServices
+import com.example.wallpapergenerator.di.MainApplication
+import com.example.wallpapergenerator.di.ViewModelFactory
+import com.example.wallpapergenerator.network.ApiService
+import com.example.wallpapergenerator.network.Repository
 import com.example.wallpapergenerator.network.WallpaperData
 import com.example.wallpapergenerator.network.WallpaperTextData
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
 class FirstFragment : Fragment() {
     lateinit var galleryAdapter: GalleryAdapter
-    private val viewModel = MainFragmentViewModel()
+
+    @Inject lateinit var viewModelFactory: ViewModelFactory<MainFragmentViewModel>
+
+    private lateinit var viewModel: MainFragmentViewModel
 
     private var _binding: FragmentFirstBinding? = null
 
@@ -36,6 +44,10 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
+
+        (activity?.application as MainApplication).appComponent.inject(this)
+        viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[MainFragmentViewModel::class.java]
+
         return binding.root
     }
 
@@ -65,19 +77,18 @@ class FirstFragment : Fragment() {
     }
 }
 
-class MainFragmentViewModel : ViewModel() {
+class MainFragmentViewModel @Inject constructor(private val repository: Repository): ViewModel() {
     private val _viewModelScope = CoroutineScope(Dispatchers.Main)
     private val _cards = MutableLiveData<List<WallpaperData>>()
     val cards: LiveData<List<WallpaperData>> = _cards
-    private val _apiServices = ApiServices.create()
 
     fun loadData() {
         _viewModelScope.launch {
             val cardData: MutableList<WallpaperData> = mutableListOf()
-            val cardTextData = fetchCardsData()
+            val cardTextData = repository.fetchCardsData()
             if (cardTextData != null) {
                 for(item in cardTextData){
-                    val cardImage = fetchImage(item.id)
+                    val cardImage = repository.fetchImage(item.id)
                     if(cardImage == null){
                         continue
                     }
@@ -91,24 +102,5 @@ class MainFragmentViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         _viewModelScope.cancel()
-    }
-
-    suspend fun fetchImage(id: Int) : Bitmap? {
-        try {
-            val response = _apiServices.getImages(id.toString())
-            return BitmapFactory.decodeStream(response.byteStream())
-        } catch (e: Exception) {
-            return null
-        }
-
-    }
-    suspend fun fetchCardsData() : List<WallpaperTextData>? {
-        val response = _apiServices.getAll()
-        return if (response.isSuccessful) {
-            response.body()
-        } else {
-            Log.d(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
-            null
-        }
     }
 }

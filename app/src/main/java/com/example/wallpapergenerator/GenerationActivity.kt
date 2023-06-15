@@ -3,31 +3,20 @@ package com.example.wallpapergenerator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
-import com.example.wallpapergenerator.network.ApiServices
-import com.google.gson.Gson
+import com.example.wallpapergenerator.di.MainApplication
+import com.example.wallpapergenerator.di.ViewModelFactory
+import com.example.wallpapergenerator.network.Repository
 import kotlinx.coroutines.*
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.io.ByteArrayOutputStream
-import java.nio.IntBuffer
+import javax.inject.Inject
 
 
 class GenerationActivity : AppCompatActivity() {
@@ -37,6 +26,8 @@ class GenerationActivity : AppCompatActivity() {
     private var isNextImageReady = false
     private lateinit var parameters: ParametersHolder
     private lateinit var settingsFragment: GenerationSettingsFragment
+    
+    @Inject lateinit var viewModelFactory: ViewModelFactory<GenerationActivityViewModel>
     lateinit var viewModel: GenerationActivityViewModel
 
     @SuppressLint("ClickableViewAccessibility")
@@ -45,7 +36,8 @@ class GenerationActivity : AppCompatActivity() {
         binding = ActivityGenerationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[GenerationActivityViewModel::class.java]
+        (application as MainApplication).appComponent.inject(this)
+        viewModel = ViewModelProvider(this, viewModelFactory)[GenerationActivityViewModel::class.java]
 
         parameters = ViewModelProvider(this)[ParametersHolder::class.java]
         mainImage = binding.mainImage
@@ -85,7 +77,10 @@ class GenerationActivity : AppCompatActivity() {
 
         settingsFragment = supportFragmentManager.findFragmentById(R.id.settingsFragmentContainer) as GenerationSettingsFragment
 
-
+        Thread {
+            Thread.sleep(1000)
+            returnNewImage()
+        }.start()
     }
 
     fun updateGenerationName() {
@@ -146,14 +141,14 @@ class GenerationActivity : AppCompatActivity() {
             val pixels = getPixels()
 
             if (isWaitForImage) {
-                binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
+                drawHourglassIndicator(IndicatorState.WAITING_FOR_NEXT_IMAGE)
                 isWaitForImage = false
                 runOnUiThread {
                     drawImage(pixels)
                 }
                 startGeneration()
             } else {
-                binding.generationIndicator.setCardBackgroundColor(Color.TRANSPARENT)
+                drawHourglassIndicator(IndicatorState.OFF)
                 isNextImageReady = true
                 viewModel.nextImage = pixels
             }
@@ -162,7 +157,7 @@ class GenerationActivity : AppCompatActivity() {
         if (!viewModel.isNextImageInitialized()) {
             lifecycleScope.launch(Dispatchers.IO) {
                 println("INTERNAL generation started")
-                binding.generationIndicator.setCardBackgroundColor(Color.RED)
+                drawHourglassIndicator(IndicatorState.WAITING_FOR_CHANGE_IMAGE)
                 viewModel.nextImage = getPixels()
                 isNextImageReady = true
                 println("INTERNAL generation ended")
@@ -174,7 +169,7 @@ class GenerationActivity : AppCompatActivity() {
             println("NEXT IMAGE READY")
             drawImage(viewModel.nextImage)
             isNextImageReady = false
-            binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
+            drawHourglassIndicator(IndicatorState.WAITING_FOR_NEXT_IMAGE)
             lifecycleScope.launch(Dispatchers.IO) {
                 println("generation started")
                 startGeneration()
@@ -182,11 +177,11 @@ class GenerationActivity : AppCompatActivity() {
             }
         } else {
             isWaitForImage = true
-            binding.generationIndicator.setCardBackgroundColor(Color.RED)
+            drawHourglassIndicator(IndicatorState.WAITING_FOR_CHANGE_IMAGE)
         }
     }
 
-    class GenerationActivityViewModel : ViewModel() {
+    class GenerationActivityViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
         private val viewModelScope = CoroutineScope(Dispatchers.Main)
         lateinit var mainImage: ImageView
         lateinit var currentImage : IntArray
@@ -200,33 +195,7 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         fun addImageToGallery() {
-            println("<><><><><><><><><><><><><><><><><><><><>")
-            if(!::currentImage.isInitialized)
-                return
 
-            val list = ApiServices.IntArrayRequest(currentImage.toMutableList().subList(0, 100))
-
-            val _apiServices = ApiServices.create()
-
-            val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
-            bitmap.copyPixelsFromBuffer(IntBuffer.wrap(currentImage))
-            val byteArrayOutputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-            val requestBody = RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray())
-
-            val imagePart = MultipartBody.Part.createFormData("imageFile", "image", requestBody)
-
-            _apiServices.sendIntArray(imagePart).enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                    // Обработка успешного ответа сервера
-                    println("11111111111111111")
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    // Обработка неудачного ответа сервера
-                    println("0000000000000000000000000")
-                }
-            })
         }
 
         fun shareImage() {
@@ -234,7 +203,12 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         fun setImageAsWallpaper() {
+            if(!::currentImage.isInitialized)
+                return
 
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.saveImageToGallery(currentImage, mainImage.width, mainImage.height)
+            }
         }
 
         override fun onCleared() {
@@ -334,5 +308,22 @@ class GenerationActivity : AppCompatActivity() {
             50,
             true, true, true, true, true,
         )
+    }
+
+    enum class IndicatorState {
+        OFF,
+        WAITING_FOR_MAX_REACHED,
+        WAITING_FOR_NEXT_IMAGE,
+        WAITING_FOR_CHANGE_IMAGE
+    }
+
+    fun drawHourglassIndicator(state: IndicatorState) {
+        binding.generationIndicator.imageAlpha = 255
+        when (state) {
+            IndicatorState.OFF -> binding.generationIndicator.imageAlpha = 0
+            IndicatorState.WAITING_FOR_MAX_REACHED -> binding.generationIndicator.setColorFilter(Color.GREEN)
+            IndicatorState.WAITING_FOR_NEXT_IMAGE -> binding.generationIndicator.setColorFilter(Color.rgb(255, 105, 0))
+            IndicatorState.WAITING_FOR_CHANGE_IMAGE -> binding.generationIndicator.setColorFilter(Color.RED)
+        }
     }
 }
