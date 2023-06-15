@@ -1,10 +1,7 @@
 package com.example.wallpapergenerator
 
-import android.content.ContentValues
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,37 +10,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.wallpapergenerator.adapters.GalleryAdapter
-import com.example.wallpapergenerator.databinding.FragmentFirstBinding
+import com.example.wallpapergenerator.databinding.FragmentOutsideGallaryBinding
 import com.example.wallpapergenerator.di.MainApplication
 import com.example.wallpapergenerator.di.ViewModelFactory
-import com.example.wallpapergenerator.network.ApiService
 import com.example.wallpapergenerator.network.Repository
 import com.example.wallpapergenerator.network.WallpaperData
-import com.example.wallpapergenerator.network.WallpaperTextData
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class OutsideGalleryFragment : Fragment() {
     lateinit var galleryAdapter: GalleryAdapter
 
     @Inject lateinit var viewModelFactory: ViewModelFactory<MainFragmentViewModel>
 
     private lateinit var viewModel: MainFragmentViewModel
 
-    private var _binding: FragmentFirstBinding? = null
-
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentOutsideGallaryBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+    ): View {
+        binding = FragmentOutsideGallaryBinding.inflate(inflater, container, false)
 
         (activity?.application as MainApplication).appComponent.inject(this)
         viewModel = ViewModelProvider(requireActivity(), viewModelFactory)[MainFragmentViewModel::class.java]
@@ -69,11 +63,14 @@ class FirstFragment : Fragment() {
         }
 
         viewModel.loadData()
+
+        binding.buttonFirst.setOnClickListener {
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 }
 

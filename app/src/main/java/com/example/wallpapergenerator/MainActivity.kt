@@ -3,7 +3,6 @@ package com.example.wallpapergenerator
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import com.example.wallpapergenerator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +14,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.toCollectionButton.setOnClickListener {
             val intent = Intent(this, GalleryActivity::class.java)
+            startActivity(intent)
+        }
+        binding.loginButton.setOnClickListener {
+            val intent = Intent(this, AuthActivity::class.java)
             startActivity(intent)
         }
 

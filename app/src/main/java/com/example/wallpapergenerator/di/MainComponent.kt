@@ -2,27 +2,22 @@ package com.example.wallpapergenerator.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.wallpapergenerator.FirstFragment
+import com.example.wallpapergenerator.OutsideGalleryFragment
 import com.example.wallpapergenerator.GenerationActivity
-import com.example.wallpapergenerator.MainActivity
-import com.example.wallpapergenerator.MainFragmentViewModel
 import com.example.wallpapergenerator.network.ApiService
 import com.example.wallpapergenerator.network.Repository
 import com.example.wallpapergenerator.network.RepositoryImpl
 import dagger.*
-import dagger.multibindings.IntoMap
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import javax.inject.Provider
-import javax.inject.Singleton
-import kotlin.reflect.KClass
 
 @Component(modules = [MainModule::class])
 interface MainComponent {
     fun inject(activity: GenerationActivity)
-    fun inject(fragment: FirstFragment)
+    fun inject(fragment: OutsideGalleryFragment)
 }
 
 @Module(includes = [NetworkModule::class/*, ViewModelModule::class*/])
