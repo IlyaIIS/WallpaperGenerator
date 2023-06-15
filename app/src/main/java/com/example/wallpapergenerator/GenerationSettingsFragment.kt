@@ -12,6 +12,7 @@ import com.example.wallpapergenerator.ImageGenerator.Companion.fractalTypeNames
 import com.example.wallpapergenerator.ImageGenerator.Companion.gradientTypeNames
 import com.example.wallpapergenerator.databinding.FragmentGenerationParametersBinding
 import com.example.wallpapergenerator.ImageGenerator.Companion.FractalColoringType
+import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import java.lang.Integer.max
 import kotlin.random.Random
 

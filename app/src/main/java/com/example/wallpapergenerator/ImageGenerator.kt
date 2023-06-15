@@ -54,17 +54,15 @@ class ImageGenerator {
         }
 
         fun generateGradient(xSize: Int, ySize: Int, parameters: GenerationActivity.GradientParameters) : IntArray {
-
-            fun getArraySize() : Int {
-                return if (parameters.isColorsRandom)
+            val arraySize =
+                if (parameters.isColorsRandom)
                     Random.nextInt(parameters.minColorsCount, parameters.maxColorsCount + 1)
                 else
                     parameters.colorsCount
-            }
 
-            fun getColorLArray() : List<Int> {
+            fun getColorArray() : List<Int> {
                 return if (parameters.isColorsRandom)
-                    IntArray(getArraySize()) {
+                    IntArray(arraySize) {
                         Color.rgb(
                             Random.nextInt(255),
                             Random.nextInt(255),
@@ -76,7 +74,7 @@ class ImageGenerator {
 
             fun drawGradient(pixels: IntArray, altMod: (alt: Float, size: Int) -> Float ) {
                 val k = Random.nextFloat()
-                val colors = getColorLArray()
+                val colors = getColorArray()
                 for(y in 0 until ySize)
                     for(x in 0 until xSize) {
                         val alt = lerp(
@@ -107,7 +105,7 @@ class ImageGenerator {
             }
             fun drawCircleGradient(pixels: IntArray) {
                 val pos = Point(Random.nextInt(xSize), Random.nextInt(ySize))
-                val colors = getColorLArray()
+                val colors = getColorArray()
                 for(y in 0 until ySize)
                     for(x in 0 until xSize) {
                         val alt = getPointDistance(Point(x, y), pos)/ sqrt(xSize.toFloat().pow(2) + ySize.toFloat().pow(2f))
@@ -121,7 +119,7 @@ class ImageGenerator {
             fun drawStrictCircleGradient(pixels: IntArray) {
                 val levelCount = Random.nextInt(10,100)
                 val pos = Point(Random.nextInt(xSize), Random.nextInt(ySize))
-                val colors = getColorLArray()
+                val colors = getColorArray()
                 for(y in 0 until ySize)
                     for(x in 0 until xSize) {
                         val alt = (getPointDistance(Point(x, y), pos)/ sqrt(xSize.toFloat().pow(2) + ySize.toFloat().pow(2f)) *levelCount).toInt().toFloat()/levelCount
@@ -133,10 +131,10 @@ class ImageGenerator {
                     }
             }
             fun drawStrictPointsGradient(pixels: IntArray) {
-                val points = Array(getArraySize()) {
+                val points = Array(arraySize) {
                     Point(Random.nextInt(xSize), Random.nextInt(ySize))
                 }
-                val colors = getColorLArray()
+                val colors = getColorArray()
                 for(y in 0 until ySize)
                     for(x in 0 until xSize) {
                         var r = 0f
@@ -153,10 +151,10 @@ class ImageGenerator {
                     }
             }
             fun drawPointsGradient(pixels: IntArray) {
-                val points = Array(getArraySize()) {
+                val points = Array(arraySize) {
                     Point(Random.nextInt(xSize), Random.nextInt(ySize))
                 }
-                val colors = getColorLArray()
+                val colors = getColorArray()
                 for(y in 0 until ySize)
                     for(x in 0 until xSize) {
                         var r = 0f
@@ -216,7 +214,6 @@ class ImageGenerator {
             "Четкий круг",
             "Точки",
             "Четкие точки",
-
         )
 
         fun generateFractal(xSize: Int, ySize: Int, parameters: GenerationActivity.FractalParameters) : IntArray {

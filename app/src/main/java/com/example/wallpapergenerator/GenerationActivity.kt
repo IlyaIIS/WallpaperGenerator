@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
 import com.example.wallpapergenerator.network.ApiServices
 import com.google.gson.Gson
@@ -142,35 +143,43 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         fun startGeneration() {
-            Thread {
-                val pixels = getPixels()
+            val pixels = getPixels()
 
-                if (isWaitForImage) {
-                    binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
-                    isWaitForImage = false
-                    runOnUiThread {
-                        drawImage(pixels)
-                    }
-                    startGeneration()
-                } else {
-                    binding.generationIndicator.setCardBackgroundColor(Color.TRANSPARENT)
-                    isNextImageReady = true
-                    viewModel.nextImage = pixels
+            if (isWaitForImage) {
+                binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
+                isWaitForImage = false
+                runOnUiThread {
+                    drawImage(pixels)
                 }
-            }.start()
+                startGeneration()
+            } else {
+                binding.generationIndicator.setCardBackgroundColor(Color.TRANSPARENT)
+                isNextImageReady = true
+                viewModel.nextImage = pixels
+            }
         }
 
-        if (!viewModel.isNextImageInitialized) {
-            binding.generationIndicator.setCardBackgroundColor(Color.RED)
-            viewModel.nextImage = getPixels()
-            isNextImageReady = true
+        if (!viewModel.isNextImageInitialized()) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                println("INTERNAL generation started")
+                binding.generationIndicator.setCardBackgroundColor(Color.RED)
+                viewModel.nextImage = getPixels()
+                isNextImageReady = true
+                println("INTERNAL generation ended")
+                startGeneration()
+            }
         }
 
         if (isNextImageReady) {
+            println("NEXT IMAGE READY")
             drawImage(viewModel.nextImage)
             isNextImageReady = false
             binding.generationIndicator.setCardBackgroundColor(Color.rgb(255, 105, 0))
-            startGeneration()
+            lifecycleScope.launch(Dispatchers.IO) {
+                println("generation started")
+                startGeneration()
+                println("generation ended")
+            }
         } else {
             isWaitForImage = true
             binding.generationIndicator.setCardBackgroundColor(Color.RED)
@@ -182,7 +191,7 @@ class GenerationActivity : AppCompatActivity() {
         lateinit var mainImage: ImageView
         lateinit var currentImage : IntArray
         lateinit var nextImage: IntArray
-        var isNextImageInitialized = ::nextImage.isInitialized
+        fun isNextImageInitialized() : Boolean { return ::nextImage.isInitialized }
 
         fun saveImage() {
             println(::currentImage.isInitialized)
@@ -235,10 +244,12 @@ class GenerationActivity : AppCompatActivity() {
     }
 
     private fun drawImage(image: IntArray) {
+        println("DRAWING STARTED")
         viewModel.currentImage = image
         val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
         bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         mainImage.setImageBitmap(bitmap)
+        println("DRAWING ENDED")
     }
 
     data class NoiseParameters(
