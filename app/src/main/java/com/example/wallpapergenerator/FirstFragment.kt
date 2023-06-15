@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.wallpapergenerator.adapters.GalleryAdapter
 import com.example.wallpapergenerator.databinding.FragmentFirstBinding
@@ -20,12 +19,6 @@ import com.example.wallpapergenerator.network.ApiServices
 import com.example.wallpapergenerator.network.WallpaperData
 import com.example.wallpapergenerator.network.WallpaperTextData
 import kotlinx.coroutines.*
-import okhttp3.*
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
-import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -76,12 +69,7 @@ class MainFragmentViewModel : ViewModel() {
     private val _viewModelScope = CoroutineScope(Dispatchers.Main)
     private val _cards = MutableLiveData<List<WallpaperData>>()
     val cards: LiveData<List<WallpaperData>> = _cards
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://4189-31-162-227-230.eu.ngrok.io/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    private val _apiServices = retrofit.create(ApiServices::class.java)
-    private val client = OkHttpClient()
+    private val _apiServices = ApiServices.create()
 
     fun loadData() {
         _viewModelScope.launch {
@@ -106,8 +94,13 @@ class MainFragmentViewModel : ViewModel() {
     }
 
     suspend fun fetchImage(id: Int) : Bitmap? {
-        val response = _apiServices.getImages(id.toString())
-        return BitmapFactory.decodeStream(response.byteStream())
+        try {
+            val response = _apiServices.getImages(id.toString())
+            return BitmapFactory.decodeStream(response.byteStream())
+        } catch (e: Exception) {
+            return null
+        }
+
     }
     suspend fun fetchCardsData() : List<WallpaperTextData>? {
         val response = _apiServices.getAll()
