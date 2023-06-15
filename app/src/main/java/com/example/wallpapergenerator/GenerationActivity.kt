@@ -3,6 +3,7 @@ package com.example.wallpapergenerator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -12,7 +13,20 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
+import com.example.wallpapergenerator.network.ApiServices
+import com.google.gson.Gson
 import kotlinx.coroutines.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.ByteArrayOutputStream
+import java.nio.IntBuffer
 
 
 class GenerationActivity : AppCompatActivity() {
@@ -34,6 +48,7 @@ class GenerationActivity : AppCompatActivity() {
 
         parameters = ViewModelProvider(this)[ParametersHolder::class.java]
         mainImage = binding.mainImage
+        viewModel.mainImage = mainImage
         parameters.currentGenerationType = intent.getSerializableExtra("Type") as GenerationType
         updateGenerationName()
 
@@ -164,6 +179,7 @@ class GenerationActivity : AppCompatActivity() {
 
     class GenerationActivityViewModel : ViewModel() {
         private val viewModelScope = CoroutineScope(Dispatchers.Main)
+        lateinit var mainImage: ImageView
         lateinit var currentImage : IntArray
         lateinit var nextImage: IntArray
         var isNextImageInitialized = ::nextImage.isInitialized
@@ -175,7 +191,33 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         fun addImageToGallery() {
+            println("<><><><><><><><><><><><><><><><><><><><>")
+            if(!::currentImage.isInitialized)
+                return
 
+            val list = ApiServices.IntArrayRequest(currentImage.toMutableList().subList(0, 100))
+
+            val _apiServices = ApiServices.create()
+
+            val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
+            bitmap.copyPixelsFromBuffer(IntBuffer.wrap(currentImage))
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            val requestBody = RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray())
+
+            val imagePart = MultipartBody.Part.createFormData("imageFile", "image", requestBody)
+
+            _apiServices.sendIntArray(imagePart).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    // Обработка успешного ответа сервера
+                    println("11111111111111111")
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    // Обработка неудачного ответа сервера
+                    println("0000000000000000000000000")
+                }
+            })
         }
 
         fun shareImage() {
