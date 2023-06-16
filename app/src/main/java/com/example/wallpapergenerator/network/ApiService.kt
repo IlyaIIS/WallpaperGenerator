@@ -20,8 +20,17 @@ interface ApiService {
     @Multipart
     @JvmSuppressWildcards
     @POST("/wallpaper/image")
-    fun sendImage(@PartMap params: Map<String, RequestBody>,
-                     @Part image:MultipartBody.Part):Call<ResponseBody>
+    fun sendImage(@Header("Authorization") token : String,
+                  @PartMap params: Map<String, RequestBody>,
+                  @Part image:MultipartBody.Part):Call<ResponseBody>
+
+    @JvmSuppressWildcards
+    @POST("/account/authorize")
+    fun login(@Body body: Map<String, Any>):Call<ResponseBody>
+
+    @JvmSuppressWildcards
+    @POST("/account/register")
+    fun register(@Body body: Map<String, Any>):Call<ResponseBody>
 
     data class IntArrayRequest(val numbers: List<Int>)
 }

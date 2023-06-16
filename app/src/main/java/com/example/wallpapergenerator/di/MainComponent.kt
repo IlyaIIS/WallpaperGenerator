@@ -1,9 +1,12 @@
 package com.example.wallpapergenerator.di
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.wallpapergenerator.AuthorizationFragment
 import com.example.wallpapergenerator.OutsideGalleryFragment
 import com.example.wallpapergenerator.GenerationActivity
+import com.example.wallpapergenerator.RegistrationFragment
 import com.example.wallpapergenerator.network.ApiService
 import com.example.wallpapergenerator.network.Repository
 import com.example.wallpapergenerator.network.RepositoryImpl
@@ -18,6 +21,13 @@ import javax.inject.Provider
 interface MainComponent {
     fun inject(activity: GenerationActivity)
     fun inject(fragment: OutsideGalleryFragment)
+    fun inject(fragment: AuthorizationFragment)
+    fun inject(fragment: RegistrationFragment)
+    @Component.Factory
+    interface AppComponentFactory {
+        fun create(@BindsInstance context: Context): MainComponent
+    }
+
 }
 
 @Module(includes = [NetworkModule::class/*, ViewModelModule::class*/])
@@ -31,7 +41,7 @@ class NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://ec39-31-162-227-230.eu.ngrok.io/")
+            .baseUrl("https://9b45-31-162-227-230.ngrok-free.app/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
