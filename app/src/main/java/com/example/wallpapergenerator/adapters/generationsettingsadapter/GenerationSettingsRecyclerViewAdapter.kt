@@ -1,25 +1,11 @@
 package com.example.wallpapergenerator
 
-import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
-import android.text.Editable
-import android.view.KeyEvent
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.DiffUtil
 import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 
-import com.google.android.material.textview.MaterialTextView
-
-class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.ListAdapter<GenerationParameter,
+class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.ListAdapter<SettingsParameter,
         SettingsViewHolder>(MyDiffUtil())  {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : SettingsViewHolder {
@@ -53,12 +39,12 @@ class GenerationSettingsRecyclerViewAdapter() : androidx.recyclerview.widget.Lis
         }
     }
 
-    class MyDiffUtil() : DiffUtil.ItemCallback<GenerationParameter>() {
-        override fun areItemsTheSame(oldItem: GenerationParameter, newItem: GenerationParameter): Boolean {
+    class MyDiffUtil() : DiffUtil.ItemCallback<SettingsParameter>() {
+        override fun areItemsTheSame(oldItem: SettingsParameter, newItem: SettingsParameter): Boolean {
             return oldItem.text == newItem.text
         }
 
-        override fun areContentsTheSame(oldItem: GenerationParameter, newItem: GenerationParameter): Boolean {
+        override fun areContentsTheSame(oldItem: SettingsParameter, newItem: SettingsParameter): Boolean {
             return oldItem.text == newItem.text
         }
     }

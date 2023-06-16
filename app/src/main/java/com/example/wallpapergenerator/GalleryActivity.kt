@@ -1,18 +1,27 @@
 package com.example.wallpapergenerator
 
+import android.graphics.Color
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
+import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import com.example.wallpapergenerator.databinding.ActivityGalleryBinding
+import com.example.wallpapergenerator.di.MainApplication
+import com.example.wallpapergenerator.di.ViewModelFactory
+import com.example.wallpapergenerator.network.Repository
+import javax.inject.Inject
+import kotlin.random.Random
 
 class GalleryActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityGalleryBinding
+
+    lateinit var viewModel: GalleryViewModel
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory<GalleryViewModel>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,21 +29,61 @@ class GalleryActivity : AppCompatActivity() {
         binding = ActivityGalleryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
+        (application as MainApplication).appComponent.inject(this)
+        viewModel = ViewModelProvider(this, viewModelFactory)[GalleryViewModel::class.java]
 
         val navController = findNavController(R.id.nav_host_fragment_content_gallery)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+    }
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+    class GalleryViewModel @Inject constructor(repository: Repository) : ViewModel() {
+        fun loadData() {
+
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_gallery)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+    class GalleryParametersHolder : ParameterHolder() {
+
+        lateinit var currentGenerationType: GenerationType
+
+        var orderBy: GalleryOrderType = GalleryOrderType.NONE
+
+        override fun getParameters(updateParameters: () -> Unit) : List<SettingsParameter> {
+            lateinit var params: List<SettingsParameter>
+            params = mutableListOf<SettingsParameter>()
+
+            params.add(
+                DropdownParameter(
+                    "Тип генератора",
+                    0,
+                    GenerationTypeNames
+                ) {optionNum -> currentGenerationType = optionNum.toEnum() }
+            )
+
+            params.add(
+                DropdownParameter(
+                    "Сортировка",
+                    0,
+                    GalleryOrderTypeNames
+                ) {optionNum -> orderBy = optionNum.toEnum() }
+            )
+
+            return params
+        }
+
+        enum class GalleryOrderType {
+            NONE,
+            TIME,
+            TIME_ASCENDING,
+            LIKE,
+            LIKE_ASCENDING
+        }
+
+        val GalleryOrderTypeNames = arrayOf(
+            "Нет",
+            "Время",
+            "Время уб.",
+            "Лайки",
+            "Лайки уб."
+        )
     }
 }

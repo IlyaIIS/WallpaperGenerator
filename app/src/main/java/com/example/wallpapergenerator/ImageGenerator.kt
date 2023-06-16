@@ -687,8 +687,17 @@ enum class GenerationType {
     Gradients,
     Shapes,
     Noise,
-    Fractals
+    Fractals,
+    Landscapes
 }
+
+val GenerationTypeNames = arrayOf(
+    "Градиент",
+    "Фигуры",
+    "Шум",
+    "Фракталы",
+    "Пейзажи"
+)
 
 /*
 Идеи:

@@ -11,12 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
 import com.example.wallpapergenerator.di.MainApplication
 import com.example.wallpapergenerator.di.ViewModelFactory
 import com.example.wallpapergenerator.network.Repository
 import kotlinx.coroutines.*
 import javax.inject.Inject
+import kotlin.random.Random
 
 
 class GenerationActivity : AppCompatActivity() {
@@ -24,8 +26,8 @@ class GenerationActivity : AppCompatActivity() {
     private lateinit var mainImage: ImageView
     private var isWaitForImage = false
     private var isNextImageReady = false
-    private lateinit var parameters: ParametersHolder
-    private lateinit var settingsFragment: GenerationSettingsFragment
+    private lateinit var parameters: GenerationParametersHolder
+    private lateinit var settingsFragment: SettingsFragment
     
     @Inject lateinit var viewModelFactory: ViewModelFactory<GenerationActivityViewModel>
     lateinit var viewModel: GenerationActivityViewModel
@@ -39,7 +41,7 @@ class GenerationActivity : AppCompatActivity() {
         (application as MainApplication).appComponent.inject(this)
         viewModel = ViewModelProvider(this, viewModelFactory)[GenerationActivityViewModel::class.java]
 
-        parameters = ViewModelProvider(this)[ParametersHolder::class.java]
+        parameters = ViewModelProvider(this)[GenerationParametersHolder::class.java]
         mainImage = binding.mainImage
         viewModel.mainImage = mainImage
         parameters.currentGenerationType = intent.getSerializableExtra("Type") as GenerationType
@@ -75,7 +77,7 @@ class GenerationActivity : AppCompatActivity() {
             }
         }
 
-        settingsFragment = supportFragmentManager.findFragmentById(R.id.settingsFragmentContainer) as GenerationSettingsFragment
+        settingsFragment = supportFragmentManager.findFragmentById(R.id.settingsFragmentContainer) as SettingsFragment
 
         Thread {
             Thread.sleep(1000)
@@ -272,12 +274,15 @@ class GenerationActivity : AppCompatActivity() {
         var ablePlanes: Boolean,
     )
 
-    class ParametersHolder : ViewModel() {
+    class GenerationParametersHolder : ParameterHolder() {
         lateinit var currentGenerationType: GenerationType
+
         val noiseParameters = NoiseParameters(
             true, 4,
             true, Color.RED,
-            true, Color.BLUE)
+            true, Color.BLUE
+        )
+
         val gradientParameters = GradientParameters(
             ImageGenerator.Companion.GradientType.StrictLine,
             true,
@@ -286,6 +291,7 @@ class GenerationActivity : AppCompatActivity() {
             4,
             mutableListOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
         )
+
         var fractalParameters = FractalParameters(
             ImageGenerator.Companion.FractalType.JuliaSet,
             ImageGenerator.Companion.FractalColoringType.Module,
@@ -300,6 +306,7 @@ class GenerationActivity : AppCompatActivity() {
             true,
             Color.GRAY
         )
+
         var shapeParameters = ShapeParameters(
             false,
             Color.WHITE,
@@ -308,6 +315,295 @@ class GenerationActivity : AppCompatActivity() {
             50,
             true, true, true, true, true,
         )
+
+        override fun getParameters(updateParameters: () -> Unit) : List<SettingsParameter> {
+            lateinit var params: List<SettingsParameter>
+
+            if (currentGenerationType == GenerationType.Noise) {
+                params = mutableListOf()
+                params.add(
+                    CheckboxParameter(
+                        "Случайное количество слоёв",
+                        noiseParameters.isLevelCountRandom
+                    ) { isChecked ->
+                        noiseParameters.isLevelCountRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (!noiseParameters.isLevelCountRandom)
+                    params.add(
+                        InputDigitParameter(
+                            "Количество слоёв",
+                            noiseParameters.levelCount,
+                            1, 9999
+                        ) { number -> noiseParameters.levelCount = number }
+                    )
+
+                params.add(
+                    CheckboxParameter(
+                        "Случайный верхний цвет",
+                        noiseParameters.isTopColorRandom
+                    ) { isChecked ->
+                        noiseParameters.isTopColorRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (!noiseParameters.isTopColorRandom)
+                    params.add(
+                        ColorParameter(
+                            "Верхний цвет",
+                            noiseParameters.topColor,
+                        ) { color -> noiseParameters.topColor = color }
+                    )
+
+                params.add(
+                    CheckboxParameter(
+                        "Случайный нижний цвет",
+                        noiseParameters.isBottomColorRandom
+                    ) { isChecked ->
+                        noiseParameters.isBottomColorRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (!noiseParameters.isBottomColorRandom) {
+                    params.add(
+                        ColorParameter(
+                            "Нижний цвет",
+                            noiseParameters.bottomColor,
+                        ) { color -> noiseParameters.bottomColor = color }
+                    )
+                }
+
+            } else if (currentGenerationType == GenerationType.Shapes) {
+                params = mutableListOf<SettingsParameter>(
+                    CheckboxParameter(
+                        "Случайный фон",
+                        shapeParameters.isBackgroundColorRandom
+                    ) {
+                            isChecked ->  shapeParameters.isBackgroundColorRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (!shapeParameters.isBackgroundColorRandom) {
+                    params.add (
+                        ColorParameter(
+                            "Цвет заднего фона",
+                            shapeParameters.backgroundColor
+                        ) { color ->  shapeParameters.backgroundColor = color }
+                    )
+                }
+                params.add (
+                    InputDigitRangeParameter(
+                        "Число фигур",
+                        shapeParameters.minShapeCount,
+                        shapeParameters.maxShapeCount,
+                        1, 20
+                    ) { numberFrom, numberTo ->
+                        shapeParameters.minShapeCount = numberFrom
+                        shapeParameters.maxShapeCount = numberTo
+                    }
+                )
+                params.add (
+                    InputDigitParameter(
+                        "Шанс появления границы",
+                        shapeParameters.borderChance,
+                        0, 100
+                    ) { number ->  shapeParameters.borderChance = number  }
+                )
+                params.add (
+                    CheckboxParameter(
+                        "Круги",
+                        shapeParameters.ableCircles
+                    ) { isChecked ->  shapeParameters.ableCircles = isChecked }
+                )
+                params.add (
+                    CheckboxParameter(
+                        "Прямоугольники",
+                        shapeParameters.ableRectangles
+                    ) { isChecked ->  shapeParameters.ableRectangles = isChecked }
+                )
+                params.add (
+                    CheckboxParameter(
+                        "Треугольники",
+                        shapeParameters.ableTriangles
+                    ) { isChecked ->  shapeParameters.ableTriangles = isChecked }
+                )
+                params.add (
+                    CheckboxParameter(
+                        "Линии",
+                        shapeParameters.ableLines
+                    ) { isChecked ->  shapeParameters.ableLines = isChecked }
+                )
+                params.add (
+                    CheckboxParameter(
+                        "Плоскости",
+                        shapeParameters.ablePlanes
+                    ) { isChecked ->  shapeParameters.ablePlanes = isChecked }
+                )
+
+            } else if (currentGenerationType == GenerationType.Gradients) {
+                params = mutableListOf<SettingsParameter>(
+                    DropdownParameter(
+                        "Тип",
+                        gradientParameters.gradientType.ordinal,
+                        ImageGenerator.gradientTypeNames
+                    ) { optionNum -> gradientParameters.gradientType = optionNum.toEnum() }
+                )
+                params.add(
+                    CheckboxParameter(
+                        "Случайные цвета",
+                        gradientParameters.isColorsRandom
+                    ) {
+                            isChecked -> gradientParameters.isColorsRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (gradientParameters.isColorsRandom) {
+                    params.add(
+                        InputDigitRangeParameter(
+                            "Число цветов",
+                            gradientParameters.minColorsCount,
+                            gradientParameters.maxColorsCount,
+                            2, 9999
+                        ) { numberFrom, numberTo ->
+                            gradientParameters.minColorsCount = numberFrom
+                            gradientParameters.maxColorsCount = numberTo
+                        }
+                    )
+                } else {
+                    params.add(
+                        InputDigitParameter(
+                            "Число цветов",
+                            gradientParameters.colorsCount,
+                            2, 30
+                        ) { number ->
+                            gradientParameters.colorsCount = number
+                            for(i in gradientParameters.colors.size until number)
+                                gradientParameters.colors.add(
+                                    Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255)))
+                            updateParameters()
+                        }
+                    )
+                    for (i in 0 until gradientParameters.colorsCount) {
+                        params.add(
+                            ColorParameter(
+                                "Цвет №$i",
+                                gradientParameters.colors[i]
+                            ) { color -> gradientParameters.colors[i] = color }
+                        )
+                    }
+                }
+
+            } else if (currentGenerationType == GenerationType.Fractals) {
+                params = mutableListOf<SettingsParameter>(
+                    DropdownParameter(
+                        "Фрактал",
+                        fractalParameters.fractalType.ordinal,
+                        ImageGenerator.fractalTypeNames
+                    ) { optionNum -> fractalParameters.fractalType = optionNum.toEnum() }
+                )
+                params.add(
+                    DropdownParameter(
+                        "Тип закраски",
+                        fractalParameters.coloringType.ordinal,
+                        ImageGenerator.fractalColoringTypeNames
+                    ) {
+                            optionNum -> fractalParameters.coloringType = optionNum.toEnum()
+                        updateParameters()
+                    }
+                )
+                params.add(
+                    InputDigitParameter(
+                        "Макс. глубина",
+                        fractalParameters.depth,
+                        1, 300
+                    ) { number -> fractalParameters.depth = number }
+                )
+                params.add(
+                    CheckboxParameter(
+                        "Случайный зум",
+                        fractalParameters.isZoomRandom
+                    ) { isChecked ->
+                        fractalParameters.isZoomRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (!fractalParameters.isZoomRandom) {
+                    params.add(
+                        InputDigitParameter(
+                            "Зум",
+                            fractalParameters.zoom,
+                            0, 100
+                        ) { number -> fractalParameters.zoom = number }
+                    )
+                }
+                params.add(
+                    CheckboxParameter(
+                        "Случайный отступ",
+                        fractalParameters.isOffsetRandom
+                    ) { isChecked ->
+                        fractalParameters.isOffsetRandom = isChecked
+                        updateParameters()
+                    }
+                )
+                if (!fractalParameters.isOffsetRandom) {
+                    params.add(
+                        InputDigitParameter(
+                            "X отступ",
+                            fractalParameters.offsetX,
+                            0, 100
+                        ) { number -> fractalParameters.offsetX = number }
+                    )
+                    params.add(
+                        InputDigitParameter(
+                            "Y отступ",
+                            fractalParameters.offsetY,
+                            0, 100
+                        ) { number -> fractalParameters.offsetY = number }
+                    )
+                }
+                if (fractalParameters.coloringType == ImageGenerator.Companion.FractalColoringType.Lerp) {
+                    params.add(
+                        CheckboxParameter(
+                            "Случайный верхний цвет",
+                            fractalParameters.isTopColorRandom
+                        ) { isChecked ->
+                            fractalParameters.isTopColorRandom = isChecked
+                            updateParameters()
+                        }
+                    )
+                    if (!fractalParameters.isTopColorRandom)
+                        params.add(
+                            ColorParameter(
+                                "Верхний цвет",
+                                fractalParameters.topColor,
+                            ) { color -> fractalParameters.topColor = color }
+                        )
+
+                    params.add(
+                        CheckboxParameter(
+                            "Случайный нижний цвет",
+                            fractalParameters.isBottomColorRandom
+                        ) { isChecked ->
+                            fractalParameters.isBottomColorRandom = isChecked
+                            updateParameters()
+                        }
+                    )
+                    if (!fractalParameters.isBottomColorRandom) {
+                        params.add(
+                            ColorParameter(
+                                "Нижний цвет",
+                                fractalParameters.bottomColor,
+                            ) { color -> fractalParameters.bottomColor = color }
+                        )
+                    }
+                }
+            } else {
+                throw NotImplementedError()
+            }
+
+            return params
+        }
     }
 
     enum class IndicatorState {

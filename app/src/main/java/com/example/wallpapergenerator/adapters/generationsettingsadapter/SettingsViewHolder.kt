@@ -11,15 +11,14 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
-import com.example.wallpapergenerator.*
 import com.google.android.material.textview.MaterialTextView
 
 sealed class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    abstract fun initialize(parameter: GenerationParameter)
+    abstract fun initialize(parameter: SettingsParameter)
 }
 
 class CheckBoxViewHolder(itemView: View) : SettingsViewHolder(itemView) {
-    override fun initialize(parameter: GenerationParameter) {
+    override fun initialize(parameter: SettingsParameter) {
         if (parameter is CheckboxParameter) {
             val checkBox = itemView as CheckBox
             checkBox.setOnCheckedChangeListener { _, isChecked ->
@@ -32,7 +31,7 @@ class CheckBoxViewHolder(itemView: View) : SettingsViewHolder(itemView) {
 }
 
 class DropdownViewHolder(itemView: View) : SettingsViewHolder(itemView) {
-    override fun initialize(parameter: GenerationParameter) {
+    override fun initialize(parameter: SettingsParameter) {
         if (parameter is DropdownParameter) {
             itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
             val view = itemView.findViewById<Spinner>(com.example.wallpapergenerator.R.id.spinnerDropdown)
@@ -57,7 +56,7 @@ class DropdownViewHolder(itemView: View) : SettingsViewHolder(itemView) {
 }
 
 class InputDigitViewHolder(itemView: View) : SettingsViewHolder(itemView) {
-    override fun initialize(parameter: GenerationParameter) {
+    override fun initialize(parameter: SettingsParameter) {
         if (parameter is InputDigitParameter) {
             fun applyChanges(inputField: EditText, parameter: InputDigitParameter) {
                 val value = inputField.text.toString().toInt()
@@ -92,7 +91,7 @@ class InputDigitViewHolder(itemView: View) : SettingsViewHolder(itemView) {
 }
 
 class InputDigitRangeViewHolder(itemView: View) : SettingsViewHolder(itemView) {
-    override fun initialize(parameter: GenerationParameter) {
+    override fun initialize(parameter: SettingsParameter) {
         if (parameter is InputDigitRangeParameter) {
             fun applyChanges(inputFieldFrom: EditText, inputFieldTo: EditText, parameter: InputDigitRangeParameter) {
                 val valueFrom = inputFieldFrom.text.toString().toInt()
@@ -145,7 +144,7 @@ class ColorViewHolder(itemView: View) : SettingsViewHolder(itemView) {
     private var color: Int = Color.WHITE
     private var onColorChanged: ((color: Int) -> Unit)? = null
 
-    override fun initialize(parameter: GenerationParameter) {
+    override fun initialize(parameter: SettingsParameter) {
         if (parameter is ColorParameter) {
             description = parameter.text
             color = parameter.color
