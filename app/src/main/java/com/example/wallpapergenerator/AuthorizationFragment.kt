@@ -9,15 +9,19 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.example.wallpapergenerator.databinding.FragmentAuthorizationBinding
 import com.example.wallpapergenerator.di.MainApplication
+import com.example.wallpapergenerator.network.Repository
+import com.example.wallpapergenerator.repository.SharedPrefRepository
+import javax.inject.Inject
 
 class AuthorizationFragment : Fragment() {
-
+    @Inject lateinit var repository: Repository
     private lateinit var binding: FragmentAuthorizationBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        (activity?.application as MainApplication).appComponent.inject(this)
         binding = FragmentAuthorizationBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -32,6 +36,19 @@ class AuthorizationFragment : Fragment() {
         binding.toBackButton.setOnClickListener {
             val intent = Intent(activity, MainActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.authorizationButton.setOnClickListener {
+            val username : String = binding.authEditTextTextUserName.text.toString()
+            val password : String = binding.authEditTextTextPassword.text.toString()
+            when{
+                username.isEmpty() -> binding.authErrorMessage.text = "Введите имя"
+                password.isEmpty() -> binding.authErrorMessage.text = "Введите пароль"
+            }
+            if(username.isNotEmpty() && password.isNotEmpty()) {
+                binding.authErrorMessage.text = ""
+                repository.authorize(username, password)
+            }
         }
     }
 

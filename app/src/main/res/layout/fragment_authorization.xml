@@ -25,7 +25,7 @@
         android:gravity="center">
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/authEditTextTextUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -33,22 +33,30 @@
             android:hint="Имя" />
 
         <EditText
-            android:id="@+id/editTextTextPassword2"
+            android:id="@+id/authEditTextTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
             android:hint="Пароль"/>
 
+        <TextView
+            android:id="@+id/authErrorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="#AF4F4F"
+            android:text=""/>
+
         <Button
-            android:id="@+id/button7"
+            android:id="@+id/authorizationButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Войти"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="5dp"/>
 
         <Button
-            android:id="@+id/to_register_button"
+            android:id="@+id/to_registerButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Создать новый аккаунт"

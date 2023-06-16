@@ -4,7 +4,11 @@ import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.example.wallpapergenerator.repository.SharedPrefRepository
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import okhttp3.*
+import org.xml.sax.Parser
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,9 +20,15 @@ interface Repository {
     fun saveImageToGallery(image: IntArray, width: Int, height: Int)
     suspend fun fetchImage(id: Int) : Bitmap?
     suspend fun fetchCardsData() : List<WallpaperTextData>?
+    fun authorize(username: String, password: String)
+    fun register(username: String, email: String, password: String)
 }
 
-class RepositoryImpl @Inject constructor(private val api: ApiService, private val client: OkHttpClient): Repository {
+class RepositoryImpl @Inject constructor(
+    private val api: ApiService,
+    private val client: OkHttpClient,
+    private val sharedPrefRepository: SharedPrefRepository
+    ): Repository {
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int) {
         println("send image...")
 
@@ -32,14 +42,16 @@ class RepositoryImpl @Inject constructor(private val api: ApiService, private va
 
         val params = HashMap<String, RequestBody>()
         params["length"] = RequestBody.create(MediaType.parse("text/plain"),byteArrayOutputStream.toByteArray().size.toString())
+        val token : String = "Bearer " + sharedPrefRepository.readData().toString()
 
-        api.sendImage(params, imagePart).enqueue(object : Callback<ResponseBody> {
+        api.sendImage(token, params, imagePart).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                println("11111111111111111")// Обработка успешного ответа сервера
+                println(response.code())
+                println(response.message())
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                println("0000000000000000000000000")// Обработка неудачного ответа сервера
+                println("не удалось выполнить запрос")
             }
         })
     }
@@ -61,5 +73,55 @@ class RepositoryImpl @Inject constructor(private val api: ApiService, private va
             Log.d(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
             null
         }
+    }
+
+    override fun authorize(username: String, password: String) {
+        val body = mapOf(
+            "username" to username,
+            "passwordHash" to password
+        )
+        val response = api.login(body).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                println(response.code())
+                println(response.message())
+                if(response.body()?.string() != null){
+                    val gson = Gson()
+                    val jsonObject = gson.fromJson(response.body()?.string(), JsonObject::class.java)
+                    sharedPrefRepository.saveData(jsonObject.get("token").asString)
+                }
+                print("сохраненные данные: ")
+                println(sharedPrefRepository.readData())
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                println("не удалось выполнить запрос")
+            }
+        })
+    }
+
+    override fun register(username: String, email: String, password: String) {
+        val body = mapOf(
+            "username" to username,
+            "email" to email,
+            "passwordHash" to password
+        )
+        val response = api.register(body).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                println(response.code())
+                println(response.message())
+                println(response.errorBody()?.string())
+                if(response.body()?.string() != null){
+                    val gson = Gson()
+                    val jsonObject = gson.fromJson(response.body()?.string(), JsonObject::class.java)
+                    sharedPrefRepository.saveData(jsonObject.get("token").asString)
+                }
+                print("сохраненные данные (token): ")
+                println(sharedPrefRepository.readData())
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                println("не удалось выполнить запрос")
+            }
+        })
     }
 }

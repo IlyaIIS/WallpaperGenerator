@@ -25,7 +25,7 @@
         android:gravity="center">
 
         <EditText
-            android:id="@+id/editTextTextPersonName2"
+            android:id="@+id/regEditTextTextUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -33,7 +33,7 @@
             android:hint="Имя" />
 
         <EditText
-            android:id="@+id/editTextTextEmailAddress"
+            android:id="@+id/regEditTextTextEmailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -41,7 +41,7 @@
             android:hint="Почта"/>
 
         <EditText
-            android:id="@+id/editTextTextPassword"
+            android:id="@+id/regEditTextTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -49,22 +49,30 @@
             android:hint="Пароль"/>
 
         <EditText
-            android:id="@+id/editTextTextPassword3"
+            android:id="@+id/regEditTextTextConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
             android:hint="Повторите пароль"/>
 
+        <TextView
+            android:id="@+id/regErrorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="#AF4F4F"
+            android:text=""/>
+
         <Button
-            android:id="@+id/button9"
+            android:id="@+id/registerButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Зарегистрироваться"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="5dp"/>
 
         <Button
-            android:id="@+id/to_authorize_button"
+            android:id="@+id/toAuthorizeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Уже есть аккаунт"
