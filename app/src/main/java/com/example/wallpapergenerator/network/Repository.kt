@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -19,8 +20,17 @@ interface Repository {
     fun saveImageToGallery(image: IntArray, width: Int, height: Int)
     suspend fun fetchImage(id: Int) : Bitmap?
     suspend fun fetchCardsData() : List<WallpaperTextData>?
-    fun authorize(username: String, password: String)
-    fun register(username: String, email: String, password: String)
+    fun authorize(
+        username: String,
+        password: String,
+        authMessage: MutableLiveData<String?>
+    )
+    fun register(
+        username: String,
+        email: String,
+        password: String,
+        regMessage: MutableLiveData<String?>
+    )
 }
 
 class RepositoryImpl @Inject constructor(
@@ -74,22 +84,18 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override fun authorize(username: String, password: String) {
+    override fun authorize(
+        username: String,
+        password: String,
+        authMessage: MutableLiveData<String?>
+    ) {
         val body = mapOf(
             "username" to username,
             "passwordHash" to password
         )
         val response = api.login(body).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                println(response.code())
-                println(response.message())
-                if(response.body()?.string() != null){
-                    val gson = Gson()
-                    val jsonObject = gson.fromJson(response.body()?.string(), JsonObject::class.java)
-                    localRepository.saveToken(jsonObject.get("token").asString)
-                }
-                print("сохраненные данные: ")
-                println(localRepository.readToken())
+                authMessage.value = checkResponse(response)
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
@@ -98,29 +104,50 @@ class RepositoryImpl @Inject constructor(
         })
     }
 
-    override fun register(username: String, email: String, password: String) {
+    override fun register(
+        username: String,
+        email: String,
+        password: String,
+        regMessage: MutableLiveData<String?>
+    ) {
         val body = mapOf(
             "username" to username,
             "email" to email,
             "passwordHash" to password
         )
+
+
         val response = api.register(body).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                println(response.code())
-                println(response.message())
-                println(response.errorBody()?.string())
-                if(response.body()?.string() != null){
-                    val gson = Gson()
-                    val jsonObject = gson.fromJson(response.body()?.string(), JsonObject::class.java)
-                    localRepository.saveToken(jsonObject.get("token").asString)
-                }
+                regMessage.value = checkResponse(response)
                 print("сохраненные данные (token): ")
                 println(localRepository.readToken())
             }
-
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                println("не удалось выполнить запрос")
+                regMessage.value = "не удалось выполнить запрос"
             }
         })
+    }
+
+    fun checkResponse(response: Response<ResponseBody>) : String? {
+        val errorBody = response.errorBody()?.string()
+        val body = response.body()?.string()
+        val gson = Gson()
+
+        if(response.isSuccessful){
+            println(body.toString())
+            if(body != null){
+                val jsonObject = gson.fromJson(body.toString(), JsonObject::class.java)
+                localRepository.saveToken(jsonObject.get("token").asString)
+                return null
+            }
+        }
+        else if(response.code() == 400 || response.code() == 401){
+            if(errorBody != null){
+                val jsonObject = gson.fromJson(errorBody.toString(), JsonObject::class.java)
+                return jsonObject.get("message").asString.toString()
+            }
+        }
+        return "Произошла ошибка на стороне сервера"
     }
 }

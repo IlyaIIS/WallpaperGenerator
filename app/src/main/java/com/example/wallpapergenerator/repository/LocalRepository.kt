@@ -22,8 +22,8 @@ class LocalRepository @Inject constructor(private val context: Context) {
     fun logout() = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit().clear().commit()
 
     companion object {
-        const val DATA_PREF_NAME = "DATA_PREF"
-        const val SHARED_PREF_NAME = "SHARED_PREF_JWT"
+        const val DATA_PREF_NAME = "SHARED_PREF_JWT"
+        const val SHARED_PREF_NAME = "DATA_PREF"
         const val SETTINGS_PREFS = "SETTINGS_PREFS"
     }
 }

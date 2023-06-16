@@ -6,6 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.wallpapergenerator.databinding.FragmentAuthorizationBinding
 import com.example.wallpapergenerator.di.MainApplication
@@ -15,6 +18,8 @@ import javax.inject.Inject
 class AuthorizationFragment : Fragment() {
     @Inject lateinit var repository: Repository
     private lateinit var binding: FragmentAuthorizationBinding
+    private val _authMessage = MutableLiveData<String?>()
+    private val authMessage: LiveData<String?> = _authMessage
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,6 +31,15 @@ class AuthorizationFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        authMessage.observe(viewLifecycleOwner, Observer<String?>() {
+            if(it.isNullOrBlank()){
+                val intent = Intent(activity, MainActivity::class.java)
+                startActivity(intent)
+            }
+            else{
+                binding.authErrorMessage.text = it
+            }
+        });
         super.onViewCreated(view, savedInstanceState)
 
         binding.toRegisterButton.setOnClickListener {
@@ -46,7 +60,7 @@ class AuthorizationFragment : Fragment() {
             }
             if(username.isNotEmpty() && password.isNotEmpty()) {
                 binding.authErrorMessage.text = ""
-                repository.authorize(username, password)
+                repository.authorize(username, password, _authMessage)
             }
         }
     }
