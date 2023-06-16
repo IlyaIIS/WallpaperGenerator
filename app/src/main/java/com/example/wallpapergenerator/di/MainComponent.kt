@@ -3,7 +3,6 @@ package com.example.wallpapergenerator.di
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.wallpapergenerator.GalleryActivity
-import com.example.wallpapergenerator.OutsideGalleryFragment
 import com.example.wallpapergenerator.GenerationActivity
 import com.example.wallpapergenerator.network.ApiService
 import com.example.wallpapergenerator.network.Repository
@@ -18,7 +17,6 @@ import javax.inject.Provider
 @Component(modules = [MainModule::class])
 interface MainComponent {
     fun inject(activity: GenerationActivity)
-    fun inject(fragment: OutsideGalleryFragment)
     fun inject(activity: GalleryActivity)
 }
 

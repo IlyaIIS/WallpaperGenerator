@@ -33,7 +33,6 @@ class SettingsFragment : Fragment() {
             else -> throw NotImplementedError()
         }
 
-
         adapter = GenerationSettingsRecyclerViewAdapter()
         binding.paramsList.adapter = adapter
 
