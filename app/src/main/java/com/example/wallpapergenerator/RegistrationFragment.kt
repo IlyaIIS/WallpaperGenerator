@@ -6,6 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.wallpapergenerator.databinding.FragmentRegistrationBinding
 import com.example.wallpapergenerator.di.MainApplication
@@ -15,6 +18,8 @@ import javax.inject.Inject
 class RegistrationFragment : Fragment() {
     @Inject lateinit var repository: Repository
     private lateinit var binding: FragmentRegistrationBinding
+    private val _regMessage = MutableLiveData<String?>()
+    private val regMessage: LiveData<String?> = _regMessage
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,6 +31,15 @@ class RegistrationFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        regMessage.observe(viewLifecycleOwner, Observer<String?>() {
+            if(it.isNullOrBlank()){
+                val intent = Intent(activity, MainActivity::class.java)
+                startActivity(intent)
+            }
+            else{
+                binding.regErrorMessage.text = it
+            }
+        });
         super.onViewCreated(view, savedInstanceState)
 
         binding.toAuthorizeButton.setOnClickListener {
@@ -56,7 +70,7 @@ class RegistrationFragment : Fragment() {
                 && password.isNotEmpty()
                 && confirmPassword.isNotEmpty()) {
                 binding.regErrorMessage.text = ""
-                repository.register(username, email, password)
+                repository.register(username, email, password, _regMessage)
             }
         }
     }
