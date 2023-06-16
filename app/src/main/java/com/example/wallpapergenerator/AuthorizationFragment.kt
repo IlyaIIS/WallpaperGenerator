@@ -10,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.wallpapergenerator.databinding.FragmentAuthorizationBinding
 import com.example.wallpapergenerator.di.MainApplication
 import com.example.wallpapergenerator.network.Repository
-import com.example.wallpapergenerator.repository.SharedPrefRepository
 import javax.inject.Inject
 
 class AuthorizationFragment : Fragment() {

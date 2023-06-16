@@ -8,6 +8,8 @@ import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion
 import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion.getGrayColor
 import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion.getPointDistance
 import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion.rotateAround
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.google.gson.annotations.SerializedName
 import kotlin.math.*
 import kotlin.random.Random
 
@@ -257,17 +259,17 @@ class ImageGenerator {
                 for(x in 0 until xSize) {
                     val count = formula(x.toFloat(), y.toFloat(), offset.x.toFloat(), offset.y.toFloat(), zoom)
                     pixels[x+y*xSize] = when (parameters.coloringType) {
-                        FractalColoringType.Module -> Color.rgb(
+                        FractalColoringType.MODULE -> Color.rgb(
                             (count*colKofs[0]%255),
                             (count*colKofs[1]%255),
                             (count*colKofs[2]%255)
                         )
-                        FractalColoringType.Sin -> Color.rgb(
+                        FractalColoringType.SIN -> Color.rgb(
                             (sin(count/colKofs[0].toFloat())*255).toInt(),
                             (sin(count/colKofs[1].toFloat())*255).toInt(),
                             (sin(count/colKofs[2].toFloat())*255).toInt()
                         )
-                        FractalColoringType.Lerp -> colorLerp(fromColor, toColor, count/maxCount.toFloat())
+                        FractalColoringType.LERP -> colorLerp(fromColor, toColor, count/maxCount.toFloat())
                         else -> throw NotImplementedError()
                     }
                 }
@@ -283,10 +285,10 @@ class ImageGenerator {
             "Множество Жюлиа",
         )
 
-        enum class FractalColoringType {
-            Module,
-            Sin,
-            Lerp
+        enum class FractalColoringType() {
+            MODULE,
+            SIN,
+            LERP
         }
 
         val fractalColoringTypeNames = arrayOf(

@@ -35,13 +35,12 @@ class DropdownViewHolder(itemView: View) : SettingsViewHolder(itemView) {
         if (parameter is DropdownParameter) {
             itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
             val view = itemView.findViewById<Spinner>(com.example.wallpapergenerator.R.id.spinnerDropdown)
-            view.setSelection(parameter.index)
             val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                itemView.context,
-                R.layout.simple_spinner_item, parameter.options
+                itemView.context, R.layout.simple_spinner_item, parameter.options
             )
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
             view.adapter = adapter
+            view.setSelection(parameter.index)
 
             view.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {

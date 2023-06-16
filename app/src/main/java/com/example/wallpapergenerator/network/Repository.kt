@@ -4,11 +4,10 @@ import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import com.example.wallpapergenerator.repository.SharedPrefRepository
+import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.*
-import org.xml.sax.Parser
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,7 +26,7 @@ interface Repository {
 class RepositoryImpl @Inject constructor(
     private val api: ApiService,
     private val client: OkHttpClient,
-    private val sharedPrefRepository: SharedPrefRepository
+    private val localRepository: LocalRepository
     ): Repository {
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int) {
         println("send image...")
@@ -42,7 +41,7 @@ class RepositoryImpl @Inject constructor(
 
         val params = HashMap<String, RequestBody>()
         params["length"] = RequestBody.create(MediaType.parse("text/plain"),byteArrayOutputStream.toByteArray().size.toString())
-        val token : String = "Bearer " + sharedPrefRepository.readData().toString()
+        val token : String = "Bearer " + localRepository.readToken().toString()
 
         api.sendImage(token, params, imagePart).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
@@ -87,10 +86,10 @@ class RepositoryImpl @Inject constructor(
                 if(response.body()?.string() != null){
                     val gson = Gson()
                     val jsonObject = gson.fromJson(response.body()?.string(), JsonObject::class.java)
-                    sharedPrefRepository.saveData(jsonObject.get("token").asString)
+                    localRepository.saveToken(jsonObject.get("token").asString)
                 }
                 print("сохраненные данные: ")
-                println(sharedPrefRepository.readData())
+                println(localRepository.readToken())
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
@@ -113,10 +112,10 @@ class RepositoryImpl @Inject constructor(
                 if(response.body()?.string() != null){
                     val gson = Gson()
                     val jsonObject = gson.fromJson(response.body()?.string(), JsonObject::class.java)
-                    sharedPrefRepository.saveData(jsonObject.get("token").asString)
+                    localRepository.saveToken(jsonObject.get("token").asString)
                 }
                 print("сохраненные данные (token): ")
-                println(sharedPrefRepository.readData())
+                println(localRepository.readToken())
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
