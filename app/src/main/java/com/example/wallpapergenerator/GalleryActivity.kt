@@ -1,8 +1,10 @@
 package com.example.wallpapergenerator
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -12,6 +14,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.wallpapergenerator.adapters.GalleryAdapter
 import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import com.example.wallpapergenerator.databinding.ActivityGalleryBinding
 import com.example.wallpapergenerator.di.MainApplication
@@ -25,6 +29,7 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 class GalleryActivity : AppCompatActivity() {
+    lateinit var galleryAdapter: GalleryAdapter
 
     private lateinit var binding: ActivityGalleryBinding
 
@@ -55,6 +60,19 @@ class GalleryActivity : AppCompatActivity() {
         }
         binding.toMenuButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+        }
+
+
+        val galleryList = binding.galleryRecyclerView
+        val layoutManager = GridLayoutManager(this, 2)
+        galleryList.layoutManager = layoutManager
+
+        galleryAdapter = GalleryAdapter()
+
+        galleryList.adapter = galleryAdapter
+
+        viewModel.cards.observe(this) { cards ->
+            galleryAdapter.submitList(cards)
         }
 
         viewModel.loadData()

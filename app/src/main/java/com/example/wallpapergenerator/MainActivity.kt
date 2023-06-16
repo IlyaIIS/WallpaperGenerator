@@ -22,23 +22,24 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         (application as MainApplication).appComponent.inject(this)
-        val isAuthorized = !localRepository.readSettingString(LocalRepository.SHARED_PREF_NAME).isNullOrBlank()
-        if (isAuthorized) {
-            binding.loginButton.text = "Выйти"
-            binding.loginButton.setOnClickListener {
-                localRepository.logout()
-            }
-        } else {
+        fun setLoginButton() {
             binding.loginButton.text = "Войти"
             binding.loginButton.setOnClickListener {
                 val intent = Intent(this, AuthActivity::class.java)
                 startActivity(intent)
             }
         }
+        val isAuthorized = !localRepository.readToken().isNullOrBlank()
+        if (isAuthorized) {
+            binding.loginButton.text = "Выйти"
+            binding.loginButton.setOnClickListener {
+                localRepository.logout()
+                setLoginButton()
+            }
+        } else {
+            setLoginButton()
+        }
 
-
-
-        //generation buttons listeners
         binding.generationButtonGradients.setOnClickListener {
             goToGenerationAction(GenerationType.Gradients)
         }

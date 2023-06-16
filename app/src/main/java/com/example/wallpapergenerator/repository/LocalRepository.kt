@@ -8,7 +8,7 @@ class LocalRepository @Inject constructor(private val context: Context) {
     private val prefs = context.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
 
     fun readToken() = authPrefs.getString(DATA_PREF_NAME, "")
-    fun saveToken(token: String) = prefs.edit().putString(DATA_PREF_NAME, token).apply()
+    fun saveToken(token: String) = authPrefs.edit().putString(DATA_PREF_NAME, token).apply()
     
     fun readSettingString(name: String) = prefs.getString(name, "")
     fun readSettingInt(name: String) = prefs.getInt(name, 0)
