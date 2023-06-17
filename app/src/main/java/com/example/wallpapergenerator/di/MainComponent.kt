@@ -39,7 +39,7 @@ class NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://9b45-31-162-227-230.ngrok-free.app/")
+            .baseUrl("https://aa6b-31-162-227-230.ngrok-free.app/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

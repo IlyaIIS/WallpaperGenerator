@@ -1,12 +1,16 @@
 package com.example.wallpapergenerator
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.media.MediaScannerConnection
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +23,11 @@ import com.example.wallpapergenerator.network.Repository
 import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.*
+import java.io.File
+import java.io.FileOutputStream
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -47,6 +56,7 @@ class GenerationActivity : AppCompatActivity() {
         parameters.loadParameters()
         mainImage = binding.mainImage
         viewModel.mainImage = mainImage
+        viewModel.context = this
         parameters.currentGenerationType = intent.getSerializableExtra("Type") as GenerationType
         updateGenerationName()
 
@@ -189,18 +199,23 @@ class GenerationActivity : AppCompatActivity() {
     class GenerationActivityViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
         private val viewModelScope = CoroutineScope(Dispatchers.Main)
         lateinit var mainImage: ImageView
+        lateinit var context : Context
         lateinit var currentImage : IntArray
         lateinit var nextImage: IntArray
         fun isNextImageInitialized() : Boolean { return ::nextImage.isInitialized }
 
         fun saveImage() {
             println(::currentImage.isInitialized)
-            if (::currentImage.isInitialized)
-                println(currentImage)
+            if(!::currentImage.isInitialized){
+                ShowMessage("Дождитесь генерации")
+                return
+            }
+            val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
+            bitmap.setPixels(currentImage, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+            saveMediaToStorage(bitmap)
         }
 
         fun addImageToGallery() {
-
         }
 
         fun shareImage() {
@@ -208,17 +223,57 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         fun setImageAsWallpaper() {
-            if(!::currentImage.isInitialized)
+            fun onSuccessful() = ShowMessage("Сохранено в галерею")
+            fun onFailed() = ShowMessage("Не удалось сохранить")
+
+            if(!::currentImage.isInitialized){
+                ShowMessage("Дождитесь генерации")
                 return
+            }
 
             viewModelScope.launch(Dispatchers.IO) {
-                repository.saveImageToGallery(currentImage, mainImage.width, mainImage.height)
+                repository.saveImageToGallery(
+                    currentImage,
+                    mainImage.width,
+                    mainImage.height,
+                    ::onSuccessful,
+                    ::onFailed)
+
             }
         }
 
         override fun onCleared() {
             super.onCleared()
             viewModelScope.cancel()
+        }
+
+        @SuppressLint("SimpleDateFormat")
+        private fun saveMediaToStorage(bitmap: Bitmap) {
+            val df: DateFormat = SimpleDateFormat("dd_MM_yyyy_hh_mm_ss")
+            val date = df.format(Calendar.getInstance().time)
+            val imageFileName = "wp_${date}.png"
+            try {
+                val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                val imageFile = File(storageDir, imageFileName)
+
+                val fileOutputStream = FileOutputStream(imageFile)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+                fileOutputStream.flush()
+                fileOutputStream.close()
+                MediaScannerConnection.scanFile(context, arrayOf(imageFile.absolutePath), null, null)
+                ShowMessage("Успешно сохранено в Pictures/")
+            }
+            catch (e: Exception){
+                ShowMessage("Ошибка! Проверьте разрешения")
+            }
+
+        }
+
+        fun ShowMessage(text : String){
+            val duration = Toast.LENGTH_SHORT
+
+            val toast = Toast.makeText(context, text, duration)
+            toast.show()
         }
     }
 

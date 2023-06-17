@@ -3,6 +3,7 @@ package com.example.wallpapergenerator.network
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.wallpapergenerator.repository.LocalRepository
@@ -15,9 +16,10 @@ import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.nio.IntBuffer
 import javax.inject.Inject
+import kotlin.reflect.jvm.internal.impl.util.CheckResult.SuccessCheck
 
 interface Repository {
-    fun saveImageToGallery(image: IntArray, width: Int, height: Int)
+    fun saveImageToGallery(image: IntArray, width: Int, height: Int, onSuccess : () -> Unit,  onFailed : () -> Unit)
     suspend fun fetchImage(id: Int) : Bitmap?
     suspend fun fetchCardsData() : List<WallpaperTextData>?
     fun authorize(
@@ -38,11 +40,11 @@ class RepositoryImpl @Inject constructor(
     private val client: OkHttpClient,
     private val localRepository: LocalRepository
     ): Repository {
-    override fun saveImageToGallery(image: IntArray, width: Int, height: Int) {
+    override fun saveImageToGallery(image: IntArray, width: Int, height: Int, onSuccess : () -> Unit,  onFailed : () -> Unit){
         println("send image...")
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(image))
+        bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val requestBody = RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray())
@@ -55,11 +57,16 @@ class RepositoryImpl @Inject constructor(
 
         api.sendImage(token, params, imagePart).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful)
+                    onSuccess()
+                else
+                    onFailed()
                 println(response.code())
                 println(response.message())
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                onFailed()
                 println("не удалось выполнить запрос")
             }
         })
