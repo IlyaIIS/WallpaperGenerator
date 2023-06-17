@@ -62,23 +62,22 @@ class GenerationActivity : AppCompatActivity() {
 
         binding.nextImageGenerationButton.setOnTouchListener(object: OnSwipeTouchListener(this@GenerationActivity) {
             override fun onSwipeLeft() {
-                println("Left")
-                parameters.currentGenerationType = ((parameters.currentGenerationType.toInt() + 1).mod(GenerationType.values().size)).toEnum()
-                updateGenerationName()
-                returnNewImage()
-                settingsFragment.updateParameters()
+                setPrevGenerator()
             }
             override fun onSwipeRight() {
-                println("Right")
-                parameters.currentGenerationType = ((parameters.currentGenerationType.toInt() - 1).mod(GenerationType.values().size)).toEnum()
-                updateGenerationName()
-                returnNewImage()
-                settingsFragment.updateParameters()
+                setNextGenerator()
             }
             override fun onClick() {
                 onNextImageGenerationClick()
             }
         })
+
+        binding.toPrevGeneratorButton.setOnClickListener {
+            setPrevGenerator()
+        }
+        binding.toNextGeneratorButton.setOnClickListener {
+            setNextGenerator()
+        }
 
         binding.settingsButton.setOnClickListener {
             if (binding.settingsFragmentContainer.visibility == View.GONE) {
@@ -96,6 +95,19 @@ class GenerationActivity : AppCompatActivity() {
             Thread.sleep(1000)
             returnNewImage()
         }.start()
+    }
+
+    fun setPrevGenerator() {
+        parameters.currentGenerationType = ((parameters.currentGenerationType.toInt() + 1).mod(GenerationType.values().size)).toEnum()
+        updateGenerationName()
+        returnNewImage()
+        settingsFragment.updateParameters()
+    }
+    fun setNextGenerator() {
+        parameters.currentGenerationType = ((parameters.currentGenerationType.toInt() - 1).mod(GenerationType.values().size)).toEnum()
+        updateGenerationName()
+        returnNewImage()
+        settingsFragment.updateParameters()
     }
 
     fun updateGenerationName() {

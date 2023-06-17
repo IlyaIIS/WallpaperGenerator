@@ -487,10 +487,9 @@ class ImageGenerator {
             }
 
             fun drawShapes(pixels: IntArray, shapes: Array<IShape>) {
-                if (parameters.backgroundColor != Color.WHITE)
-                    for(y in 0 until  ySize)
-                        for(x in 0 until xSize)
-                            pixels[x + y*xSize] = backgroundColor
+                for(y in 0 until  ySize)
+                    for(x in 0 until xSize)
+                        pixels[x + y*xSize] = backgroundColor
                 for(y in 0 until  ySize)
                     for(x in 0 until xSize)
                         for(shape in shapes) {
@@ -690,7 +689,7 @@ enum class GenerationType {
     Shapes,
     Noise,
     Fractals,
-    Landscapes
+    //Landscapes
 }
 
 val GenerationTypeNames = arrayOf(
@@ -698,7 +697,7 @@ val GenerationTypeNames = arrayOf(
     "Фигуры",
     "Шум",
     "Фракталы",
-    "Пейзажи"
+    //"Пейзажи"
 )
 
 /*
