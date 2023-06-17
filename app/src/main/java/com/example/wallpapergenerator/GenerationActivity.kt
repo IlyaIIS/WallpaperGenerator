@@ -1,8 +1,10 @@
 package com.example.wallpapergenerator
 
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.MediaScannerConnection
@@ -12,6 +14,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -50,13 +54,19 @@ class GenerationActivity : AppCompatActivity() {
         binding = ActivityGenerationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(WRITE_EXTERNAL_STORAGE), 123)
+        }
+
         (application as MainApplication).appComponent.inject(this)
         viewModel = ViewModelProvider(this, viewModelFactory)[GenerationActivityViewModel::class.java]
         parameters = ViewModelProvider(this, parameterFactory)[GenerationParametersHolder::class.java]
+        viewModel.parematers = parameters
         parameters.loadParameters()
         mainImage = binding.mainImage
         viewModel.mainImage = mainImage
         viewModel.context = this
+        viewModel.exportImageFragment = binding.exportImageFragmentContainer.getFragment()
         parameters.currentGenerationType = intent.getSerializableExtra("Type") as GenerationType
         updateGenerationName()
 
@@ -89,6 +99,13 @@ class GenerationActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.exportImageFragment.onSaveImageClick = {
+            viewModel.saveImage()
+        }
+        viewModel.exportImageFragment.onLikeClick = {
+            viewModel.likeImage()
+        }
+
         settingsFragment = supportFragmentManager.findFragmentById(R.id.settingsFragmentContainer) as SettingsFragment
 
         Thread {
@@ -112,10 +129,10 @@ class GenerationActivity : AppCompatActivity() {
 
     fun updateGenerationName() {
         binding.generationName.text = when (parameters.currentGenerationType) {
-            GenerationType.Gradients -> "Градиент"
-            GenerationType.Shapes -> "Фигуры"
-            GenerationType.Noise -> "Шум"
-            GenerationType.Fractals -> "Фракталы"
+            GenerationType.GRADIENTS -> "Градиент"
+            GenerationType.SHAPES -> "Фигуры"
+            GenerationType.NOISE -> "Шум"
+            GenerationType.FRACTALS -> "Фракталы"
             else -> throw NotImplementedError()
         }
     }
@@ -156,10 +173,10 @@ class GenerationActivity : AppCompatActivity() {
     private fun returnNewImage() {
         fun getPixels(): IntArray {
             return when (parameters.currentGenerationType) {
-                GenerationType.Gradients -> ImageGenerator.generateGradient(mainImage.width, mainImage.height, parameters.gradientParameters)
-                GenerationType.Shapes -> ImageGenerator.generateShapes(mainImage.width, mainImage.height, parameters.shapeParameters)
-                GenerationType.Noise -> ImageGenerator.generateSinNoise(mainImage.width, mainImage.height, parameters.noiseParameters)
-                GenerationType.Fractals -> ImageGenerator.generateFractal(mainImage.width, mainImage.height, parameters.fractalParameters)
+                GenerationType.GRADIENTS -> ImageGenerator.generateGradient(mainImage.width, mainImage.height, parameters.gradientParameters)
+                GenerationType.SHAPES -> ImageGenerator.generateShapes(mainImage.width, mainImage.height, parameters.shapeParameters)
+                GenerationType.NOISE -> ImageGenerator.generateSinNoise(mainImage.width, mainImage.height, parameters.noiseParameters)
+                GenerationType.FRACTALS -> ImageGenerator.generateFractal(mainImage.width, mainImage.height, parameters.fractalParameters)
                 else -> throw NotImplementedError()
             }
         }
@@ -214,6 +231,9 @@ class GenerationActivity : AppCompatActivity() {
         lateinit var context : Context
         lateinit var currentImage : IntArray
         lateinit var nextImage: IntArray
+        lateinit var exportImageFragment: ExportImageFragment
+        lateinit var parematers: GenerationParametersHolder
+
         fun isNextImageInitialized() : Boolean { return ::nextImage.isInitialized }
 
         fun saveImage() {
@@ -227,30 +247,48 @@ class GenerationActivity : AppCompatActivity() {
             saveMediaToStorage(bitmap)
         }
 
-        fun addImageToGallery() {
-        }
-
-        fun shareImage() {
-
-        }
-
-        fun setImageAsWallpaper() {
-            fun onSuccessful() = ShowMessage("Сохранено в галерею")
-            fun onFailed() = ShowMessage("Не удалось сохранить")
+        var isImageSaved = false
+        var savedImageId = -1
+        var isWaiting = false
+        fun likeImage() {
+            fun onSuccessful(imageId: Int) {
+                isImageSaved = true
+                exportImageFragment.like()
+                savedImageId = imageId
+                isWaiting = false
+                ShowMessage("Сохранено в галерею")
+            }
+            fun onFailed() {
+                isWaiting = false
+                ShowMessage("Не удалось сохранить")
+            }
 
             if(!::currentImage.isInitialized){
                 ShowMessage("Дождитесь генерации")
                 return
             }
 
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.saveImageToGallery(
-                    currentImage,
-                    mainImage.width,
-                    mainImage.height,
-                    ::onSuccessful,
-                    ::onFailed)
-
+            if (!isWaiting) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    isWaiting = true
+                    if (isImageSaved) {
+                        repository.deleteImageFromGallery(savedImageId)
+                        withContext(Dispatchers.Main) {
+                            exportImageFragment.dislike()
+                            ShowMessage("Удалено из галереи")
+                        }
+                        isImageSaved = false
+                        isWaiting = false
+                    } else {
+                        repository.saveImageToGallery(
+                            currentImage,
+                            mainImage.width,
+                            mainImage.height,
+                            parematers.currentGenerationType,
+                            ::onSuccessful,
+                            ::onFailed)
+                    }
+                }
             }
         }
 
@@ -276,9 +314,10 @@ class GenerationActivity : AppCompatActivity() {
                 ShowMessage("Успешно сохранено в Pictures/")
             }
             catch (e: Exception){
-                ShowMessage("Ошибка! Проверьте разрешения")
+                if (ContextCompat.checkSelfPermission(context, "android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED)
+                    ShowMessage("Необходимо разрешение на доступ к мультимедиа!")
+                ShowMessage("Ошибка!")
             }
-
         }
 
         fun ShowMessage(text : String){
@@ -291,6 +330,8 @@ class GenerationActivity : AppCompatActivity() {
 
     private fun drawImage(image: IntArray) {
         println("DRAWING STARTED")
+        viewModel.isImageSaved = false
+        viewModel.exportImageFragment.dislike()
         viewModel.currentImage = image
         val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
         bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
@@ -403,7 +444,7 @@ class GenerationActivity : AppCompatActivity() {
         override fun getParameters(updateParameters: () -> Unit) : List<SettingsParameter> {
             lateinit var params: List<SettingsParameter>
 
-            if (currentGenerationType == GenerationType.Noise) {
+            if (currentGenerationType == GenerationType.NOISE) {
                 params = mutableListOf()
                 params.add(
                     CheckboxParameter(
@@ -470,7 +511,7 @@ class GenerationActivity : AppCompatActivity() {
                     )
                 }
 
-            } else if (currentGenerationType == GenerationType.Shapes) {
+            } else if (currentGenerationType == GenerationType.SHAPES) {
                 params = mutableListOf<SettingsParameter>(
                     CheckboxParameter(
                         "Случайный фон",
@@ -560,7 +601,7 @@ class GenerationActivity : AppCompatActivity() {
                     }
                 )
 
-            } else if (currentGenerationType == GenerationType.Gradients) {
+            } else if (currentGenerationType == GenerationType.GRADIENTS) {
                 params = mutableListOf<SettingsParameter>(
                     DropdownParameter(
                         "Тип",
@@ -622,7 +663,7 @@ class GenerationActivity : AppCompatActivity() {
                     }
                 }
 
-            } else if (currentGenerationType == GenerationType.Fractals) {
+            } else if (currentGenerationType == GenerationType.FRACTALS) {
                 params = mutableListOf<SettingsParameter>(
                     DropdownParameter(
                         "Фрактал",

@@ -6,29 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
 import com.example.wallpapergenerator.databinding.FragmentExportImageBinding
 
 
-class ExportImageFragment : Fragment(), View.OnClickListener {
-    private lateinit var binding: FragmentExportImageBinding
-    private lateinit var viewModel: GenerationActivity.GenerationActivityViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+class ExportImageFragment : Fragment() {
+    var onSaveImageClick: () -> Unit = { }
+    var onLikeClick: () -> Unit = { }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentExportImageBinding.inflate(layoutInflater)
-
-        binding.expandButton.setOnClickListener(this)
-
-        viewModel = ViewModelProvider(requireActivity())[GenerationActivity.GenerationActivityViewModel::class.java]
-
         return inflater.inflate(R.layout.fragment_export_image, container, false)
     }
 
@@ -36,21 +28,20 @@ class ExportImageFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         view.findViewById<ImageButton>(R.id.saveImageButton).setOnClickListener {
-            viewModel.saveImage()
+            onSaveImageClick()
         }
-        view.findViewById<ImageButton>(R.id.setIamgeAsWallpaperButton).setOnClickListener {
-            viewModel.setImageAsWallpaper()
-        }
-        view.findViewById<ImageButton>(R.id.addImageToGalleryButton).setOnClickListener {
-            viewModel.addImageToGallery()
+        view.findViewById<ImageButton>(R.id.likeButton).setOnClickListener {
+            onLikeClick()
         }
     }
 
-    fun onExpandClick(view: View) {
-        println("Click there")
+    fun like() {
+        view?.findViewById<ImageView>(R.id.likeButton)?.setImageResource(R.drawable.heart)
     }
-
-    override fun onClick(view: View?) {
-        println("Redirect")
+    fun dislike() {
+        view?.findViewById<ImageView>(R.id.likeButton)?.setImageResource(R.drawable.heart_void)
+    }
+    fun hideLike() {
+        view?.findViewById<ImageView>(R.id.likeButton)?.isVisible = false
     }
 }

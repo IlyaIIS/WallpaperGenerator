@@ -8,8 +8,6 @@ import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion
 import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion.getGrayColor
 import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion.getPointDistance
 import com.example.wallpapergenerator.ImageGenerator.Companion.SupMath.Companion.rotateAround
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.google.gson.annotations.SerializedName
 import kotlin.math.*
 import kotlin.random.Random
 
@@ -221,7 +219,7 @@ class ImageGenerator {
         fun generateFractal(xSize: Int, ySize: Int, parameters: GenerationActivity.FractalParameters) : IntArray {
             val maxCount = parameters.depth
 
-            fun formula(xx: Float, yy: Float, cx: Float, cy: Float, zoom: Float) : Int {
+            fun juliaSetFormula(xx: Float, yy: Float, cx: Float, cy: Float, zoom: Float) : Int {
                 val x = xx/zoom+(xSize-(xSize/zoom))/2
                 val y = yy/zoom+(ySize-(ySize/zoom))/2
                 var z = floatArrayOf((2*y-ySize)/xSize*1.5f, (2*x-xSize)/xSize*1.5f)
@@ -257,7 +255,7 @@ class ImageGenerator {
 
             for(y in 0 until ySize)
                 for(x in 0 until xSize) {
-                    val count = formula(x.toFloat(), y.toFloat(), offset.x.toFloat(), offset.y.toFloat(), zoom)
+                    val count = juliaSetFormula(x.toFloat(), y.toFloat(), offset.x.toFloat(), offset.y.toFloat(), zoom)
                     pixels[x+y*xSize] = when (parameters.coloringType) {
                         FractalColoringType.MODULE -> Color.rgb(
                             (count*colKofs[0]%255),
@@ -685,11 +683,11 @@ class ImageGenerator {
 }
 
 enum class GenerationType {
-    Gradients,
-    Shapes,
-    Noise,
-    Fractals,
-    //Landscapes
+    GRADIENTS,
+    SHAPES,
+    NOISE,
+    FRACTALS,
+    //LANDSCAPES
 }
 
 val GenerationTypeNames = arrayOf(

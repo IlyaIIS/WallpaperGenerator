@@ -1,5 +1,6 @@
 package com.example.wallpapergenerator.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import android.widget.*
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wallpapergenerator.R
 import com.example.wallpapergenerator.network.WallpaperData
 
 class GalleryAdapter() : androidx.recyclerview.widget.ListAdapter<WallpaperData,
@@ -20,7 +22,8 @@ class GalleryAdapter() : androidx.recyclerview.widget.ListAdapter<WallpaperData,
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val data = currentList[position]
-        holder.cardText.text = data.likes.toString()
+
+        holder.cardImage.setImageResource(R.drawable.placeholder_chuck)
         data.image.observe(holder.itemView.context as LifecycleOwner) {
             holder.cardImage.setImageBitmap(it)
         }
@@ -28,6 +31,17 @@ class GalleryAdapter() : androidx.recyclerview.widget.ListAdapter<WallpaperData,
         holder.cardImage.setOnClickListener {
             data.onClick(data)
         }
+        data.onLiked = {
+            if (data.isLiked) {
+                holder.itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.WHITE)
+                holder.itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.BLACK)
+            } else {
+                holder.itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.BLACK)
+                holder.itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.WHITE)
+            }
+            holder.cardText.text = data.likes.toString()
+        }
+        data.onLiked(data)
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -41,16 +41,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.generationButtonGradients.setOnClickListener {
-            goToGenerationAction(GenerationType.Gradients)
+            goToGenerationAction(GenerationType.GRADIENTS)
         }
         binding.generationButtonShapes.setOnClickListener {
-            goToGenerationAction(GenerationType.Shapes)
+            goToGenerationAction(GenerationType.SHAPES)
         }
         binding.generationButtonNoise.setOnClickListener {
-            goToGenerationAction(GenerationType.Noise)
+            goToGenerationAction(GenerationType.NOISE)
         }
         binding.generationButtonFractals.setOnClickListener {
-            goToGenerationAction(GenerationType.Fractals)
+            goToGenerationAction(GenerationType.FRACTALS)
         }
     }
 

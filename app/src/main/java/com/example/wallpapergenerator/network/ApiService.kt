@@ -5,17 +5,24 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 interface ApiService {
-    @GET("/wallpaper/all")
-    suspend fun getAll(): Response<List<WallpaperTextData>>
+    @Multipart
+    @JvmSuppressWildcards
+    @POST("/wallpaper/all")
+    suspend fun getAll(@Header("Authorization") token : String,
+                       @PartMap params: Map<String, RequestBody>): Response<List<WallpaperTextData>>
+
+    @Multipart
+    @JvmSuppressWildcards
+    @POST("/wallpaper/collection")
+    suspend fun getCollection(@Header("Authorization") token : String,
+                              @PartMap params: Map<String, RequestBody>): Response<List<WallpaperTextData>>
 
     @GET("/wallpaper/{id}")
     @Streaming
-    suspend fun getImages(@Path("id") id: String): ResponseBody
+    suspend fun getImage(@Path("id") id: String): ResponseBody
 
     @Multipart
     @JvmSuppressWildcards
@@ -23,6 +30,18 @@ interface ApiService {
     fun sendImage(@Header("Authorization") token : String,
                   @PartMap params: Map<String, RequestBody>,
                   @Part image:MultipartBody.Part):Call<ResponseBody>
+
+    @DELETE("/wallpaper/image/{id}")
+    suspend fun deleteImage(@Path("id") id: String,
+                            @Header("Authorization") token : String): ResponseBody
+
+    @POST("/wallpaper/{id}/like")
+    suspend fun likeImage(@Path("id") id: String,
+                          @Header("Authorization") token : String): ResponseBody
+
+    @DELETE("/wallpaper/{id}/like")
+    suspend fun dislikeImage(@Path("id") id: String,
+                             @Header("Authorization") token : String): ResponseBody
 
     @JvmSuppressWildcards
     @POST("/account/authorize")

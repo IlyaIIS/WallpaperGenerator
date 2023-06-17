@@ -3,10 +3,10 @@ package com.example.wallpapergenerator.network
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.wallpapergenerator.GalleryActivity
+import com.example.wallpapergenerator.GenerationType
 import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -15,12 +15,11 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.ByteArrayOutputStream
-import java.nio.IntBuffer
 import javax.inject.Inject
-import kotlin.reflect.jvm.internal.impl.util.CheckResult.SuccessCheck
 
 interface Repository {
-    fun saveImageToGallery(image: IntArray, width: Int, height: Int, onSuccess : () -> Unit,  onFailed : () -> Unit)
+    fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
+                           onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit)
     suspend fun fetchImage(id: Int) : Bitmap?
     suspend fun fetchCardsData(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>?
     fun authorize(
@@ -34,6 +33,11 @@ interface Repository {
         password: String,
         regMessage: MutableLiveData<String?>
     )
+
+    suspend fun deleteImageFromGallery(imageId: Int)
+    suspend fun likeImage(imageId: Int)
+    suspend fun dislikeImage(imageId: Int)
+    suspend fun fetchCollection(parameters: GalleryActivity.GalleryParametersHolder): List<WallpaperTextData>?
 }
 
 class RepositoryImpl @Inject constructor(
@@ -41,7 +45,8 @@ class RepositoryImpl @Inject constructor(
     private val client: OkHttpClient,
     private val localRepository: LocalRepository
     ): Repository {
-    override fun saveImageToGallery(image: IntArray, width: Int, height: Int, onSuccess : () -> Unit,  onFailed : () -> Unit){
+    override fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
+                                    onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit){
         println("send image...")
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -54,28 +59,65 @@ class RepositoryImpl @Inject constructor(
 
         val params = HashMap<String, RequestBody>()
         params["length"] = RequestBody.create(MediaType.parse("text/plain"),byteArrayOutputStream.toByteArray().size.toString())
+        params["hashCode"] = RequestBody.create(MediaType.parse("text/plain"), image.contentHashCode().toString())
+        params["generationType"] = RequestBody.create(MediaType.parse("text/plain"), generationType.name)
         val token : String = "Bearer " + localRepository.readToken().toString()
 
         api.sendImage(token, params, imagePart).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if(response.isSuccessful)
-                    onSuccess()
-                else
+                val body = response.body()?.string()
+                if(response.isSuccessful && body != null){
+                    Gson().fromJson(body.toString(), JsonObject::class.java).run {
+                        onSuccess(get("id").asInt)
+                    }
+                }
+                else {
                     onFailed()
+                }
+
                 println(response.code())
                 println(response.message())
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 onFailed()
-                println("не удалось выполнить запрос")
+                println("не удалось сохранить изображение")
             }
         })
     }
 
+    override suspend fun deleteImageFromGallery(
+        imageId: Int
+    ) {
+        try {
+            println("Удаление изображения")
+            val token : String = "Bearer " + localRepository.readToken().toString()
+            val response = api.deleteImage(imageId.toString(), token)
+        } catch (e: Exception) {
+        }
+    }
+
+    override suspend fun likeImage(imageId: Int) {
+        try {
+            println("Лайк изображения")
+            val token : String = "Bearer " + localRepository.readToken().toString()
+            val response = api.likeImage(imageId.toString(), token)
+        } catch (e: Exception) {
+        }
+    }
+
+    override suspend fun dislikeImage(imageId: Int) {
+        try {
+            println("Лайк изображения")
+            val token : String = "Bearer " + localRepository.readToken().toString()
+            val response = api.dislikeImage(imageId.toString(), token)
+        } catch (e: Exception) {
+        }
+    }
+
     override suspend fun fetchImage(id: Int) : Bitmap? {
         try {
-            val response = api.getImages(id.toString())
+            val response = api.getImage(id.toString())
             return BitmapFactory.decodeStream(response.byteStream())
         } catch (e: Exception) {
             return null
@@ -83,10 +125,55 @@ class RepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchCardsData(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>? {
-        val response = api.getAll()
+        val token : String = "Bearer " + localRepository.readToken().toString()
+
+        val params = HashMap<String, RequestBody>()
+        val imageType: String = if (parameters.allGenerationTypes) "ALL" else parameters.currentGenerationType.name
+        params["imageType"] = RequestBody.create(
+            MediaType.parse("text/plain"),
+            imageType
+        )
+        params["orderBy"] = RequestBody.create(
+            MediaType.parse("text/plain"),
+            parameters.orderBy.name
+        )
+        params["isLikedOnly"] = RequestBody.create(
+            MediaType.parse("text/plain"),
+            parameters.isLikedOnly.toString()
+        )
+
+        val response = api.getAll(token, params)
         return if (response.isSuccessful) {
             response.body()
         } else {
+            Log.d(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
+            null
+        }
+    }
+
+    override suspend fun fetchCollection(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>? {
+        val params = HashMap<String, RequestBody>()
+        val imageType: String = if (parameters.allGenerationTypes) "ALL" else parameters.currentGenerationType.name
+        params["imageType"] = RequestBody.create(
+            MediaType.parse("text/plain"),
+            imageType
+        )
+        params["orderBy"] = RequestBody.create(
+            MediaType.parse("text/plain"),
+            parameters.orderBy.name
+        )
+        params["isLikedOnly"] = RequestBody.create(
+            MediaType.parse("text/plain"),
+            parameters.isLikedOnly.toString()
+        )
+
+        val token : String = "Bearer " + localRepository.readToken().toString()
+
+        val response = api.getCollection(token, params)
+        return if (response.isSuccessful) {
+            response.body()
+        } else {
+            Log.d(ContentValues.TAG, response.code().toString())
             Log.d(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
             null
         }
