@@ -82,15 +82,10 @@ class GalleryActivity : AppCompatActivity() {
     }
 
     fun toggleGalleryAndCollection(){
-        if (viewModel.isInGallery) {
-            viewModel.isInGallery = false
-            binding.toGalleryButton.text = "галерея"
-            binding.toCollectionButton.text = "КОЛЛЕКЦИЯ"
-        } else {
-            viewModel.isInGallery = true
-            binding.toGalleryButton.text = "ГАЛЕРЕЯ"
-            binding.toCollectionButton.text = "коллекция"
-        }
+        viewModel.isInGallery = !viewModel.isInGallery
+        binding.toGalleryButton.isAllCaps = viewModel.isInGallery
+        binding.toCollectionButton.isAllCaps = !viewModel.isInGallery
+        
         viewModel.loadData()
     }
 

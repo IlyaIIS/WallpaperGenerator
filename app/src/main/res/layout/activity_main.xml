@@ -18,7 +18,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:background="#3A91CA"
+            android:background="@color/header_color_default"
             android:elevation="20dp"
             android:orientation="horizontal">
 
@@ -29,7 +29,8 @@
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
                 android:layout_weight="3"
-                android:text="Галерея" />
+                android:text="Галерея"
+                style="@style/Custom.MainButtonStyle"/>
 
             <Button
                 android:id="@+id/loginButton"
@@ -38,13 +39,14 @@
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="10dp"
                 android:layout_weight="1"
-                android:text="Войти" />
+                android:text="Войти"
+                style="@style/Custom.MainButtonStyle"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#8FB6D1"
+            android:background="@color/white"
             android:orientation="vertical"
             android:padding="10dp">
 
@@ -52,25 +54,29 @@
                 android:id="@+id/generationButtonGradients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Градиенты" />
+                android:text="Градиенты"
+                style="@style/Custom.MainButtonStyle"/>
 
             <Button
                 android:id="@+id/generationButtonShapes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Фигуры" />
+                android:text="Фигуры"
+                style="@style/Custom.MainButtonStyle"/>
 
             <Button
                 android:id="@+id/generationButtonNoise"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Шум" />
+                android:text="Шум"
+                style="@style/Custom.MainButtonStyle"/>
 
             <Button
                 android:id="@+id/generationButtonFractals"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Фракталы" />
+                android:text="Фракталы"
+                style="@style/Custom.MainButtonStyle"/>
         </LinearLayout>
 
     </LinearLayout>

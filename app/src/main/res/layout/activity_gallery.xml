@@ -16,11 +16,11 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:orientation="horizontal"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="#AA000000">
+            android:background="@color/header_color_default">
             <ImageButton
                 android:id="@+id/toMenuButton"
                 android:layout_width="wrap_content"
@@ -45,11 +45,12 @@
                     android:id="@+id/toGalleryButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ГАЛЕРЕЯ"
+                    android:text="галерея"
                     android:paddingRight="0dp"
                     android:textSize="25sp"
                     android:textColor="@color/white"
-                    android:backgroundTint="@color/transparent"/>
+                    android:backgroundTint="@color/transparent"
+                    android:textAllCaps="true"/>
                 <Button
                     android:id="@+id/toCollectionButton"
                     android:layout_width="wrap_content"
@@ -57,7 +58,8 @@
                     android:text="коллекция"
                     android:textColor="@color/white"
                     android:textSize="25sp"
-                    android:backgroundTint="@color/transparent"/>
+                    android:backgroundTint="@color/transparent"
+                    android:textAllCaps="false"/>
             </LinearLayout>
 
             <ImageButton

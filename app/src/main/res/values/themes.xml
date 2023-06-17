@@ -21,6 +21,12 @@
         <item name="colorControlNormal">@android:color/holo_green_light</item>
         <item name="colorControlActivated">@android:color/holo_orange_dark</item>
     </style>
+    <style name="Custom.MainButtonStyle" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:backgroundTint">#AAAAAA</item>
+    </style>
 
     <style name="Theme.WallpaperGenerator.NoActionBar">
         <item name="windowActionBar">false</item>
