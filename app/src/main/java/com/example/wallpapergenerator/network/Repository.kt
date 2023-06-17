@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.example.wallpapergenerator.GalleryActivity
 import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -19,7 +20,7 @@ import javax.inject.Inject
 interface Repository {
     fun saveImageToGallery(image: IntArray, width: Int, height: Int)
     suspend fun fetchImage(id: Int) : Bitmap?
-    suspend fun fetchCardsData() : List<WallpaperTextData>?
+    suspend fun fetchCardsData(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>?
     fun authorize(
         username: String,
         password: String,
@@ -41,11 +42,11 @@ class RepositoryImpl @Inject constructor(
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int) {
         println("send image...")
 
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.copyPixelsFromBuffer(IntBuffer.wrap(image))
+        var bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-        val requestBody = RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray())
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+        val requestBody = RequestBody.create(MediaType.parse("image/png"), byteArrayOutputStream.toByteArray())
 
         val imagePart = MultipartBody.Part.createFormData("imageFile", "image", requestBody)
 
@@ -74,7 +75,7 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchCardsData() : List<WallpaperTextData>? {
+    override suspend fun fetchCardsData(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>? {
         val response = api.getAll()
         return if (response.isSuccessful) {
             response.body()

@@ -1,19 +1,15 @@
 package com.example.wallpapergenerator
 
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.wallpapergenerator.adapters.GalleryAdapter
 import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
@@ -25,8 +21,8 @@ import com.example.wallpapergenerator.network.WallpaperData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.random.Random
 
 class GalleryActivity : AppCompatActivity() {
     lateinit var galleryAdapter: GalleryAdapter
@@ -38,6 +34,8 @@ class GalleryActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory<GalleryViewModel>
 
+    lateinit var wallpaperFragmentContainer :FragmentContainerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,6 +46,11 @@ class GalleryActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory)[GalleryViewModel::class.java]
         parameters = ViewModelProvider(this)[GalleryParametersHolder::class.java]
         viewModel.parameters = parameters
+        wallpaperFragmentContainer = binding.wallpaperFragmentContainer
+        viewModel.onWallpaperClicked = { wallpaper ->
+            wallpaperFragmentContainer.isVisible = true
+            wallpaperFragmentContainer.getFragment<ExpandedWallpaperFragment>().setWallpaper(wallpaper)
+        }
 
         binding.toGalleryButton.setOnClickListener {
             toggleGalleryAndCollection()
@@ -97,21 +100,28 @@ class GalleryActivity : AppCompatActivity() {
         private val _cards = MutableLiveData<List<WallpaperData>>()
         val cards: LiveData<List<WallpaperData>> = _cards
         lateinit var parameters: GalleryParametersHolder
+        lateinit var onWallpaperClicked: (self: WallpaperData) -> Unit
 
         fun loadData() {
             _viewModelScope.launch {
                 val cardData: MutableList<WallpaperData> = mutableListOf()
-                val cardTextData = repository.fetchCardsData()
+                val cardTextData = repository.fetchCardsData(parameters)
                 if (cardTextData != null) {
-                    for(item in cardTextData){
-                        val cardImage = repository.fetchImage(item.id)
-                        if(cardImage == null){
-                            continue
-                        }
-                        cardData.add(WallpaperData(item.id, cardImage, item.likes))
+                    for(item in cardTextData) {
+                        cardData.add(WallpaperData(item.id, item.likes, onWallpaperClicked, ::onWallpaperInScreen))
                     }
                 }
-                _cards.value = cardData!!
+                _cards.value = cardData
+            }
+        }
+
+        fun onWallpaperInScreen(wallpaper: WallpaperData) {
+            _viewModelScope.launch {
+                var image: Bitmap?
+                withContext(Dispatchers.IO) {
+                    image = repository.fetchImage(wallpaper.id)
+                }
+                wallpaper.image.value = image
             }
         }
     }

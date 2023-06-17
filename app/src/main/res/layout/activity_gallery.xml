@@ -6,70 +6,78 @@
     android:layout_height="match_parent"
     tools:context=".GalleryActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/header"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="#AA000000">
-        <ImageButton
-            android:id="@+id/toMenuButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/transparent"
-            android:onClick="onClickMenu"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/menu_icon"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginHorizontal="5dp"/>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-            <Button
-                android:id="@+id/toGalleryButton"
+            android:background="#AA000000">
+            <ImageButton
+                android:id="@+id/toMenuButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ГАЛЕРЕЯ"
-                android:paddingRight="0dp"
-                android:textSize="25sp"
-                android:textColor="@color/white"
-                android:backgroundTint="@color/transparent"/>
-            <Button
-                android:id="@+id/toCollectionButton"
+                android:background="@color/transparent"
+                android:onClick="onClickMenu"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/menu_icon"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginHorizontal="5dp"/>
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="коллекция"
-                android:textColor="@color/white"
-                android:textSize="25sp"
-                android:backgroundTint="@color/transparent"/>
-        </LinearLayout>
+                android:gravity="center"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                <Button
+                    android:id="@+id/toGalleryButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ГАЛЕРЕЯ"
+                    android:paddingRight="0dp"
+                    android:textSize="25sp"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/transparent"/>
+                <Button
+                    android:id="@+id/toCollectionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="коллекция"
+                    android:textColor="@color/white"
+                    android:textSize="25sp"
+                    android:backgroundTint="@color/transparent"/>
+            </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/settingsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/settings_icon"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@color/transparent"
-            android:layout_marginHorizontal="5dp"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageButton
+                android:id="@+id/settingsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/settings_icon"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@color/transparent"
+                android:layout_marginHorizontal="5dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/galleryRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/header" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/galleryRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toBottomOf="@id/header" />
+    </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/settingsFragmentContainer"
@@ -77,6 +85,14 @@
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_generation_parameters"
         android:name="com.example.wallpapergenerator.SettingsFragment"
+        android:visibility="gone"/>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/wallpaperFragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_generation_parameters"
+        android:name="com.example.wallpapergenerator.ExpandedWallpaperFragment"
         android:visibility="gone"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
