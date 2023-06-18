@@ -26,7 +26,8 @@
         android:layout_marginRight="5dp"
         android:layout_marginBottom="3dp"
         app:layout_constraintBottom_toBottomOf="@id/cardImage"
-        app:layout_constraintEnd_toEndOf="@id/cardImage" />
+        app:layout_constraintEnd_toEndOf="@id/cardImage"
+        android:tint="#FF3636"/>
 
     <TextView
         android:id="@+id/cardText"

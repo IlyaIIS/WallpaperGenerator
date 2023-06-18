@@ -12,7 +12,8 @@
         tools:text="Числовой параметр: "
         android:layout_centerVertical="true"
         android:textSize="20sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:fontFamily="@font/jura_bold"/>
     <EditText
         android:id="@+id/inputField"
         android:layout_width="40dp"
@@ -20,5 +21,7 @@
         android:inputType="number"
         tools:text="3"
         android:gravity="center"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:textColor="@color/white"
+        android:fontFamily="@font/jura_bold"/>
 </RelativeLayout>

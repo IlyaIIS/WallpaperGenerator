@@ -26,4 +26,17 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="gradients_btn_text">Градиенты</string>
+    <string name="figures_btn_text">Фигуры</string>
+    <string name="interference_btn_text">Интерференция</string>
+    <string name="fractals_btn_text">Фракталы</string>
+    <string name="SignInText">Войти</string>
+    <string name="sign_in">Войти</string>
+    <string name="create_account">Создать новый аккаунт</string>
+    <string name="go_back_to_login">Уже есть аккаунт</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="confirm_password">Повторите пароль</string>
+    <string name="password">Пароль</string>
+    <string name="email">Почта</string>
+    <string name="username">Имя</string>
 </resources>

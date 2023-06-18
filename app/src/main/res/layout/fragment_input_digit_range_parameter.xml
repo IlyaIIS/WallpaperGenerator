@@ -12,7 +12,8 @@
         tools:text="Числовой параметр: "
         android:layout_centerVertical="true"
         android:textSize="20sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:fontFamily="@font/jura_bold" />
     <EditText
         android:id="@+id/inputFieldFrom"
         android:layout_width="40dp"
@@ -20,7 +21,9 @@
         android:inputType="number"
         tools:text="3"
         android:gravity="center"
-        android:layout_toStartOf="@id/rangeSymbol"/>
+        android:layout_toStartOf="@id/rangeSymbol"
+        android:textColor="@color/white"
+        android:fontFamily="@font/jura_bold"/>
     <TextView
         android:id="@+id/rangeSymbol"
         android:layout_width="wrap_content"
@@ -29,7 +32,8 @@
         android:layout_centerVertical="true"
         android:textSize="20sp"
         android:textColor="@color/white"
-        android:layout_toStartOf="@id/inputFieldTo"/>
+        android:layout_toStartOf="@id/inputFieldTo"
+        android:fontFamily="@font/jura_bold"/>
     <EditText
         android:id="@+id/inputFieldTo"
         android:layout_width="40dp"
@@ -37,5 +41,7 @@
         android:inputType="number"
         tools:text="3"
         android:gravity="center"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:fontFamily="@font/jura_bold"
+        android:textColor="@color/white"/>
 </RelativeLayout>

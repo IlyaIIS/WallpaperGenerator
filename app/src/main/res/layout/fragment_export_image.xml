@@ -11,7 +11,7 @@
         android:id="@+id/buttonContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#AAAAAAAA"
+        android:background="#DD19163F"
         android:gravity="end"
         android:orientation="vertical">
 
@@ -25,7 +25,7 @@
             android:scaleType="centerInside"
             android:src="@drawable/heart_void"
             android:contentDescription="Set wallpaper"
-            />
+            app:tint="#FFFF3636" />
 
         <ImageButton
             android:id="@+id/saveImageButton"
@@ -36,7 +36,8 @@
             android:background="@color/transparent"
             android:scaleType="fitCenter"
             android:src="@drawable/download_icon"
-            android:contentDescription="Download" />
+            android:contentDescription="Download"
+            app:tint="#FFE9E9E9" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

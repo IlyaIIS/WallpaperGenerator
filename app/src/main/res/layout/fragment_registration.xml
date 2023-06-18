@@ -6,14 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".RegistrationFragment"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/android_studio_dark_theme">
 
     <ImageButton
         android:id="@+id/toBackButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="@drawable/baseline_keyboard_arrow_left_24"
-        android:backgroundTint="@color/black"/>
+        android:background="@drawable/back_icon"
+        android:backgroundTint="@color/white"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,8 +28,10 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Имя"
-            style="@style/Custom.AuthEditTextStyle"/>
+            android:hint="@string/username"
+            style="@style/Custom.AuthEditTextStyle"
+            android:fontFamily="@font/jura_regular"
+            android:textSize="18sp"/>
 
         <EditText
             android:id="@+id/regEditTextTextEmailAddress"
@@ -37,8 +39,10 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textEmailAddress"
-            android:hint="Почта"
-            style="@style/Custom.AuthEditTextStyle"/>
+            android:hint="@string/email"
+            style="@style/Custom.AuthEditTextStyle"
+            android:fontFamily="@font/jura_regular"
+            android:textSize="18sp"/>
 
         <EditText
             android:id="@+id/regEditTextTextPassword"
@@ -46,8 +50,10 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="Пароль"
-            style="@style/Custom.AuthEditTextStyle"/>
+            android:hint="@string/password"
+            style="@style/Custom.AuthEditTextStyle"
+            android:fontFamily="@font/jura_regular"
+            android:textSize="18sp"/>
 
         <EditText
             android:id="@+id/regEditTextTextConfirmPassword"
@@ -55,8 +61,10 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="Повторите пароль"
-            style="@style/Custom.AuthEditTextStyle"/>
+            android:hint="@string/confirm_password"
+            style="@style/Custom.AuthEditTextStyle"
+            android:fontFamily="@font/jura_regular"
+            android:textSize="18sp"/>
 
         <TextView
             android:id="@+id/regErrorMessage"
@@ -64,24 +72,32 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:textColor="#AF4F4F"
-            android:text=""/>
+            android:text=""
+            android:fontFamily="@font/jura_regular"
+            android:textSize="18sp"/>
 
         <Button
             android:id="@+id/registerButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Зарегистрироваться"
+            android:text="@string/register"
             android:layout_marginTop="5dp"
-            style="@style/Custom.MainButtonStyle"/>
+            android:background="@drawable/action_button"
+            android:fontFamily="@font/jura_bold"
+            android:textSize="18sp"
+            android:textColor="@color/white"/>
 
         <Button
             android:id="@+id/toAuthorizeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Уже есть аккаунт"
+            android:text="@string/go_back_to_login"
+            android:paddingHorizontal="8dp"
             android:textSize="15sp"
             android:layout_marginTop="50dp"
-            style="@style/Custom.MainButtonStyle"/>
+            android:background="@drawable/action_button"
+            android:fontFamily="@font/jura_bold"
+            android:textColor="@color/white"/>
     </LinearLayout>
 
 </LinearLayout>

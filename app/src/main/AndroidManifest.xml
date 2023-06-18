@@ -22,25 +22,37 @@
             android:name=".AuthActivity"
             android:exported="false"
             android:label="@string/title_activity_auth"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.WallpaperGenerator.NoActionBar" />
         <activity
             android:name=".testActivity"
             android:exported="false"
-            android:label="@string/title_activity_test" />
+            android:label="@string/title_activity_test"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".GalleryActivity"
             android:exported="false"
             android:label="@string/title_activity_gallery"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.WallpaperGenerator.NoActionBar" />
         <activity
             android:name=".GenerationActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".RegistrationActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
