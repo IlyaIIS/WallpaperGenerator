@@ -24,8 +24,8 @@
             android:background="@color/transparent"
             android:scaleType="centerInside"
             android:src="@drawable/heart_void"
-            android:contentDescription="Set wallpaper"
-            app:tint="#FFFF3636" />
+            android:contentDescription="@string/set_wallpaper"
+            app:tint="@color/red_like" />
 
         <ImageButton
             android:id="@+id/saveImageButton"
@@ -36,8 +36,8 @@
             android:background="@color/transparent"
             android:scaleType="fitCenter"
             android:src="@drawable/download_icon"
-            android:contentDescription="Download"
-            app:tint="#FFE9E9E9" />
+            android:contentDescription="@string/download"
+            app:tint="@color/gray_E" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -24,12 +24,14 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="gradients_btn_text">Градиенты</string>
-    <string name="figures_btn_text">Фигуры</string>
-    <string name="interference_btn_text">Интерференция</string>
-    <string name="fractals_btn_text">Фракталы</string>
+    <string name="menu_gallery">Галерея</string>
+    <string name="menu_collection">Коллекция</string>
+
+    <string name="generator_gradients">Градиенты</string>
+    <string name="generator_shapes">Фигуры</string>
+    <string name="generator_interference">Интерференция</string>
+    <string name="generator_fractals">Фракталы</string>
+
     <string name="create_account">Создать новый аккаунт</string>
     <string name="go_back_to_login">Уже есть аккаунт</string>
     <string name="register">Зарегистрироваться</string>
@@ -50,4 +52,8 @@
     <string name="warning_wait_for_generation">Дождитесь генерации</string>
     <string name="message_saved_to_gallery">Сохранено в галерею</string>
     <string name="message_removed_from_gallery">Удалено из галереи</string>
+    <string name="set_wallpaper">Set wallpaper</string>
+    <string name="download">Download</string>
+    <string name="range_separator">-</string>
+    <string name="parameters">Параметры</string>
 </resources>

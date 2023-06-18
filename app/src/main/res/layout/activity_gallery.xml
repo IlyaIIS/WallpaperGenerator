@@ -27,7 +27,6 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@color/transparent"
-                android:onClick="onClickMenu"
                 android:scaleType="fitCenter"
                 app:srcCompat="@drawable/home_icon"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -47,8 +46,8 @@
                     android:id="@+id/toGalleryButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="галерея"
-                    android:paddingRight="0dp"
+                    android:text="@string/menu_gallery"
+                    android:paddingEnd="0dp"
                     android:textSize="25sp"
                     android:textColor="@color/white"
                     style="@style/Widget.AppCompat.Button.Borderless"
@@ -59,7 +58,7 @@
                     android:id="@+id/toCollectionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="коллекция"
+                    android:text="@string/menu_collection"
                     android:textColor="@color/white"
                     style="@style/Widget.AppCompat.Button.Borderless"
                     android:textSize="25sp"
@@ -95,7 +94,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints"
-        tools:layout="@layout/fragment_generation_parameters"
+        tools:layout="@layout/fragment_settings"
         android:name="com.example.wallpapergenerator.BlankFragment"
         android:visibility="gone"/>
 
@@ -103,7 +102,7 @@
         android:id="@+id/wallpaperFragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/fragment_generation_parameters"
+        tools:layout="@layout/fragment_settings"
         android:name="com.example.wallpapergenerator.BlankFragment"
         android:visibility="gone"/>
 

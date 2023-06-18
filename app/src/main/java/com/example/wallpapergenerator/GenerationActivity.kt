@@ -143,10 +143,10 @@ class GenerationActivity : AppCompatActivity() {
 
     private fun updateGenerationName() {
         binding.generationName.text = when (parameters.currentGenerationType) {
-            GenerationType.GRADIENTS -> "Градиент"
-            GenerationType.SHAPES -> "Фигуры"
-            GenerationType.INTERFERENCE -> "Интерференция"
-            GenerationType.FRACTALS -> "Фракталы"
+            GenerationType.GRADIENTS -> getString(R.string.generator_gradients)
+            GenerationType.SHAPES -> getString(R.string.generator_shapes)
+            GenerationType.INTERFERENCE -> getString(R.string.generator_interference)
+            GenerationType.FRACTALS -> getString(R.string.generator_fractals)
             else -> throw NotImplementedError()
         }
     }
