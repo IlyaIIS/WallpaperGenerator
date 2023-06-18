@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wallpapergenerator.R
@@ -33,7 +34,7 @@ class CheckBoxViewHolder(itemView: View) : SettingsViewHolder(itemView) {
 class DropdownViewHolder(itemView: View) : SettingsViewHolder(itemView) {
     override fun initialize(parameter: SettingsParameter) {
         if (parameter is DropdownParameter) {
-            itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
+            itemView.findViewById<AppCompatTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
             val view = itemView.findViewById<Spinner>(com.example.wallpapergenerator.R.id.spinnerDropdown)
             val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
                 itemView.context, R.layout.spinner_item, parameter.options
@@ -84,7 +85,7 @@ class InputDigitViewHolder(itemView: View) : SettingsViewHolder(itemView) {
             })
 
             inputField.setText(parameter.number.toString())
-            itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
+            itemView.findViewById<AppCompatTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
         }
     }
 }
@@ -132,7 +133,7 @@ class InputDigitRangeViewHolder(itemView: View) : SettingsViewHolder(itemView) {
 
             inputFieldFrom.setText(parameter.numberFrom.toString())
             inputFieldTo.setText(parameter.numberTo.toString())
-            itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
+            itemView.findViewById<AppCompatTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
         }
     }
 }
@@ -149,9 +150,9 @@ class ColorViewHolder(itemView: View) : SettingsViewHolder(itemView) {
             color = parameter.color
             onColorChanged = parameter.onColorChanged
 
-            colorBox = (itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.colorCube)?.background as GradientDrawable)
+            colorBox = (itemView.findViewById<AppCompatTextView>(com.example.wallpapergenerator.R.id.colorCube)?.background as GradientDrawable)
             colorBox.setColor(color)
-            itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField)?.text = description
+            itemView.findViewById<AppCompatTextView>(com.example.wallpapergenerator.R.id.descriptionField)?.text = description
 
             itemView.findViewById<EditText>(com.example.wallpapergenerator.R.id.inputRed).run {
                 setText(Color.red(color).toString())

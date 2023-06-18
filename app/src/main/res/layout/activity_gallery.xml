@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GalleryActivity">
+    tools:context=".GalleryActivity"
+    android:background="@color/android_studio_dark_theme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,19 +21,20 @@
             android:orientation="horizontal"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="@color/header_color_default">
+            android:background="#FF3E3A71">
             <ImageButton
                 android:id="@+id/toMenuButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:background="@color/transparent"
                 android:onClick="onClickMenu"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/menu_icon"
+                app:srcCompat="@drawable/home_icon"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginHorizontal="5dp"/>
+                android:layout_marginHorizontal="5dp"
+                app:tint="#FFE9E9E9"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -49,17 +51,21 @@
                     android:paddingRight="0dp"
                     android:textSize="25sp"
                     android:textColor="@color/white"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:backgroundTint="@color/transparent"
-                    android:textAllCaps="true"/>
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/jura_regular" />
                 <Button
                     android:id="@+id/toCollectionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="коллекция"
                     android:textColor="@color/white"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:textSize="25sp"
                     android:backgroundTint="@color/transparent"
-                    android:textAllCaps="false"/>
+                    android:textAllCaps="false"
+                    android:fontFamily="@font/jura_regular" />
             </LinearLayout>
 
             <ImageButton
@@ -71,7 +77,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:background="@color/transparent"
-                android:layout_marginHorizontal="5dp"/>
+                android:layout_marginHorizontal="5dp"
+                app:tint="#FFE9E9E9"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -83,8 +90,12 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/settingsFragmentContainer"
+        android:name="com.example.wallpapergenerator.SettingsFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="300dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"
         tools:layout="@layout/fragment_generation_parameters"
         android:name="com.example.wallpapergenerator.BlankFragment"
         android:visibility="gone"/>

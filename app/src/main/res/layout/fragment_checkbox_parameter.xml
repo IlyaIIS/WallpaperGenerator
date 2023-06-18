@@ -8,4 +8,5 @@
     android:layoutDirection="rtl"
     android:textSize="20sp"
     android:textColor="@color/white"
-    tools:background="@color/black"/>
+    tools:background="@color/black"
+    android:fontFamily="@font/jura_bold"/>

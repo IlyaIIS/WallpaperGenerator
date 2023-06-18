@@ -7,7 +7,7 @@
     app:cardCornerRadius="40dp"
     tools:context=".ExportImageFragment"
     android:layout_margin="17dp"
-    android:backgroundTint="#EE775599"
+    android:backgroundTint="#EE19163F"
     >
     <LinearLayout
         android:id="@+id/parametersPopupBackground"
@@ -23,7 +23,8 @@
             android:gravity="center"
             android:textSize="30sp"
             android:textColor="@color/white"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/jura_bold" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/paramsList"
             android:name="com.example.wallpapergenerator.GenerationSettingsFragment"

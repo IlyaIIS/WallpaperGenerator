@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".parameters.ColorParameterFragment"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/descriptionField"
@@ -14,39 +14,54 @@
         tools:text="Цвет: "
         android:layout_centerVertical="true"
         android:textSize="20sp"
-        android:textColor="@color/white"/>
-    <EditText
-        android:id="@+id/inputBlue"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        tools:text="255"
-        android:gravity="center"
-        android:backgroundTint="#0000FF"
-        android:layout_alignParentEnd="true" />
-    <EditText
-        android:id="@+id/inputGreen"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        tools:text="255"
-        android:gravity="center"
-        android:backgroundTint="#00FF00"
-        android:layout_toStartOf="@+id/inputBlue" />
-    <EditText
-        android:id="@+id/inputRed"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        tools:text="255"
-        android:gravity="center"
-        android:backgroundTint="#FF0000"
-        android:layout_toStartOf="@+id/inputGreen" />
-    <TextView
-        android:id="@+id/colorCube"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:background="@drawable/color_box"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/inputRed"/>
-</RelativeLayout>
+        android:textColor="@color/white"
+        android:fontFamily="@font/jura_bold"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end">
+        <EditText
+            android:id="@+id/inputBlue"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            tools:text="255"
+            android:gravity="center"
+            android:backgroundTint="#0000FF"
+            android:layout_alignParentEnd="true"
+            android:fontFamily="@font/jura_bold"
+            android:textColor="@color/white"/>
+        <EditText
+            android:id="@+id/inputGreen"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            tools:text="255"
+            android:gravity="center"
+            android:backgroundTint="#00FF00"
+            android:layout_toStartOf="@+id/inputBlue"
+            android:fontFamily="@font/jura_bold"
+            android:textColor="@color/white"/>
+        <EditText
+            android:id="@+id/inputRed"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            tools:text="255"
+            android:gravity="center"
+            android:backgroundTint="#FF0000"
+            android:layout_toStartOf="@+id/inputGreen"
+            android:fontFamily="@font/jura_bold"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/colorCube"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/color_box"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/inputRed"
+            android:fontFamily="@font/jura_bold"
+            android:textColor="@color/white"/>
+    </LinearLayout>
+
+</LinearLayout>
