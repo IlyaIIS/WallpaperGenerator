@@ -1,14 +1,12 @@
 package com.example.wallpapergenerator.di
 
-import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.wallpapergenerator.*
 import com.example.wallpapergenerator.network.ApiService
 import com.example.wallpapergenerator.network.NetRepository
-import com.example.wallpapergenerator.network.NetRepositoryImpl
-import com.example.wallpapergenerator.repository.FileRepository
+import com.example.wallpapergenerator.network.NetRepositoryRetrofit
 import dagger.*
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -33,7 +31,7 @@ interface MainComponent {
 @Module(includes = [NetworkModule::class])
 interface MainModule {
     @Binds
-    fun bindNetRepository(netRepositoryImpl: NetRepositoryImpl): NetRepository
+    fun bindNetRepository(netRepositoryRetrofit: NetRepositoryRetrofit): NetRepository
 }
 
 @Module

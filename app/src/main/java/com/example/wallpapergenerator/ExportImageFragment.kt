@@ -7,10 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
-import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
-import com.example.wallpapergenerator.databinding.FragmentExportImageBinding
 
 
 class ExportImageFragment : Fragment() {

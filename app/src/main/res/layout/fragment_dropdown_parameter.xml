@@ -24,7 +24,8 @@
             android:layout_height="wrap_content"
             android:dropDownWidth="wrap_content"
             android:textAlignment="center"
-            android:spinnerMode="dropdown"/>
+            android:spinnerMode="dropdown"
+            />
     </FrameLayout>
 
 </RelativeLayout>

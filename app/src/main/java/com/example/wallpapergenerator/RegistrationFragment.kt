@@ -58,11 +58,11 @@ class RegistrationFragment : Fragment() {
             val confirmPassword : String = binding.regEditTextTextConfirmPassword.text.toString()
 
             when{
-                username.isEmpty() -> binding.regErrorMessage.text = "Введите имя"
-                email.isEmpty() -> binding.regErrorMessage.text = "Введите почту"
-                password.isEmpty() -> binding.regErrorMessage.text = "Введите пароль"
-                confirmPassword.isEmpty() -> binding.regErrorMessage.text = "Подтвердите пароль"
-                password != confirmPassword -> binding.regErrorMessage.text = "Пароли не совпадают"
+                username.isEmpty() -> binding.regErrorMessage.text = getString(R.string.auth_input_name)
+                email.isEmpty() -> binding.regErrorMessage.text = getString(R.string.auth_input_email)
+                password.isEmpty() -> binding.regErrorMessage.text = getString(R.string.auth_input_password)
+                confirmPassword.isEmpty() -> binding.regErrorMessage.text = getString(R.string.auth_input_confirm_password)
+                password != confirmPassword -> binding.regErrorMessage.text = getString(R.string.auth_warning_not_same_password)
             }
             if(password == confirmPassword
                 && username.isNotEmpty()
@@ -73,9 +73,5 @@ class RegistrationFragment : Fragment() {
                 netRepository.register(username, email, password, _regMessage)
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
     }
 }

@@ -1,37 +1,47 @@
 package com.example.wallpapergenerator
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.example.wallpapergenerator.databinding.ActivityMainBinding
 import com.example.wallpapergenerator.di.MainApplication
+import com.example.wallpapergenerator.imagegeneration.GenerationType
+import com.example.wallpapergenerator.network.NetRepository
 import com.example.wallpapergenerator.repository.LocalRepository
+import com.example.wallpapergenerator.repository.ToastMessageDrawer
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     @Inject
     lateinit var localRepository: LocalRepository
+    @Inject
+    lateinit var toastMessageDrawer: ToastMessageDrawer
+    @Inject
+    lateinit var netRepository: NetRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.toCollectionButton.setOnClickListener {
-            val intent = Intent(this, GalleryActivity::class.java)
-            startActivity(intent)
+            if (netRepository.getIsNetConnection()) {
+                Intent(this, GalleryActivity::class.java).run { startActivity(this) }
+            } else {
+                toastMessageDrawer.showMessage(getString(R.string.error_no_net_connection))
+            }
         }
         (application as MainApplication).appComponent.inject(this)
         fun setLoginButton() {
-            binding.loginButton.text = "Войти"
+            binding.loginButton.text = getString(R.string.login)
             binding.loginButton.setOnClickListener {
-                val intent = Intent(this, AuthActivity::class.java)
-                startActivity(intent)
+                Intent(this, AuthActivity::class.java).run { startActivity(this) }
             }
         }
         val isAuthorized = !localRepository.readToken().isNullOrBlank()
         if (isAuthorized) {
-            binding.loginButton.text = "Выйти"
+            binding.loginButton.text = getString(R.string.logout)
             binding.loginButton.setOnClickListener {
                 localRepository.logout()
                 setLoginButton()
@@ -56,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     fun goToGenerationAction(generationType: GenerationType) {
         val intent = Intent(this, GenerationActivity::class.java)
-        intent.putExtra("Type", generationType)
+        intent.putExtra("typeNum", generationType.ordinal)
         startActivity(intent)
     }
 }

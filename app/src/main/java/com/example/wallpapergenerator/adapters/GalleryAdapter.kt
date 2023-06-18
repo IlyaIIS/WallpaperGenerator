@@ -17,36 +17,41 @@ class GalleryAdapter() : androidx.recyclerview.widget.ListAdapter<WallpaperData,
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) : MyViewHolder {
         return MyViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(com.example.wallpapergenerator.R.layout.card, parent, false))
+                .inflate(R.layout.card, parent, false))
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val data = currentList[position]
-
-        holder.cardImage.setImageResource(R.drawable.placeholder_chuck)
-        data.image.observe(holder.itemView.context as LifecycleOwner) {
-            holder.cardImage.setImageBitmap(it)
-        }
-        data.onInScreen(data)
-        holder.cardImage.setOnClickListener {
-            data.onClick(data)
-        }
-        data.onLiked = {
-            if (data.isLiked) {
-                holder.itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.WHITE)
-                holder.itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.BLACK)
-            } else {
-                holder.itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.BLACK)
-                holder.itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.WHITE)
-            }
-            holder.cardText.text = data.likes.toString()
-        }
-        data.onLiked(data)
+        holder.initialize(currentList[position])
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val cardText: TextView = itemView.findViewById(com.example.wallpapergenerator.R.id.cardText)
-        val cardImage: ImageView = itemView.findViewById(com.example.wallpapergenerator.R.id.cardImage)
+        private val cardText: TextView = itemView.findViewById(com.example.wallpapergenerator.R.id.cardText)
+        private val cardImage: ImageView = itemView.findViewById(com.example.wallpapergenerator.R.id.cardImage)
+
+        fun initialize(data: WallpaperData) {
+            cardImage.setImageResource(R.drawable.placeholder_chuck)
+            data.image.observe(itemView.context as LifecycleOwner) {
+                cardImage.setImageBitmap(it)
+            }
+            data.onInScreen(data)
+
+            cardImage.setOnClickListener {
+                data.onClick(data)
+            }
+
+            data.onLiked = {
+                if (data.isLiked) {
+                    itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.WHITE)
+                    itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.BLACK)
+                } else {
+                    itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.BLACK)
+                    itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.WHITE)
+                }
+                cardText.text = data.likes.toString()
+            }
+
+            data.onLiked(data)
+        }
     }
 
     class MyDiffUtil() : DiffUtil.ItemCallback<WallpaperData>() {

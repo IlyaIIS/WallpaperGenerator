@@ -116,6 +116,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_generation_parameters"
-        android:name="com.example.wallpapergenerator.SettingsFragment"
+        android:name="com.example.wallpapergenerator.BlankFragment"
         android:visibility="gone"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

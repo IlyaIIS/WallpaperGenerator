@@ -39,7 +39,7 @@ class AuthorizationFragment : Fragment() {
             else{
                 binding.authErrorMessage.text = it
             }
-        });
+        })
         super.onViewCreated(view, savedInstanceState)
 
         binding.toRegisterButton.setOnClickListener {
@@ -55,8 +55,8 @@ class AuthorizationFragment : Fragment() {
             val username : String = binding.authEditTextTextUserName.text.toString()
             val password : String = binding.authEditTextTextPassword.text.toString()
             when{
-                username.isEmpty() -> binding.authErrorMessage.text = "Введите имя"
-                password.isEmpty() -> binding.authErrorMessage.text = "Введите пароль"
+                username.isEmpty() -> binding.authErrorMessage.text = getString(R.string.auth_input_name)
+                password.isEmpty() -> binding.authErrorMessage.text = getString(R.string.auth_input_password)
             }
             if(username.isNotEmpty() && password.isNotEmpty()) {
                 binding.authErrorMessage.text = ""

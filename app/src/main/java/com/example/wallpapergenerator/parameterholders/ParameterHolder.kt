@@ -1,4 +1,4 @@
-package com.example.wallpapergenerator
+package com.example.wallpapergenerator.parameterholders
 
 import androidx.lifecycle.ViewModel
 import com.example.wallpapergenerator.adapters.generationsettingsadapter.SettingsParameter

@@ -26,4 +26,17 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="auth_input_name">Введите имя</string>
+    <string name="auth_input_password">Введите пароль</string>
+    <string name="auth_input_confirm_password">Подтвердите пароль</string>
+    <string name="auth_input_email">Введите почту</string>
+    <string name="auth_warning_not_same_password">Пароли не совпадают</string>
+    <string name="login">Войти</string>
+    <string name="logout">Выйти</string>
+
+    <string name="error_no_net_connection">Отсутствует подключение к интернету</string>
+    <string name="error_not_saved">Не удалось сохранить</string>
+    <string name="warning_wait_for_generation">Дождитесь генерации</string>
+    <string name="message_saved_to_gallery">Сохранено в галерею</string>
+    <string name="message_removed_from_gallery">Удалено из галереи</string>
 </resources>

@@ -1,12 +1,15 @@
 package com.example.wallpapergenerator.network
 
 import android.content.ContentValues
+import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.example.wallpapergenerator.GalleryActivity
-import com.example.wallpapergenerator.GenerationType
+import com.example.wallpapergenerator.imagegeneration.GenerationType
+import com.example.wallpapergenerator.parameterholders.GalleryParametersHolder
 import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -19,9 +22,9 @@ import javax.inject.Inject
 
 interface NetRepository {
     fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
-                           onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit)
+                           onSuccess : (imageId: Int) -> Unit, onFailed : () -> Unit)
     suspend fun fetchImage(id: Int) : Bitmap?
-    suspend fun fetchCardsData(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>?
+    suspend fun fetchCardsData(parameters: GalleryParametersHolder) : List<WallpaperTextData>?
     fun authorize(
         username: String,
         password: String,
@@ -37,13 +40,14 @@ interface NetRepository {
     suspend fun deleteImageFromGallery(imageId: Int)
     suspend fun likeImage(imageId: Int)
     suspend fun dislikeImage(imageId: Int)
-    suspend fun fetchCollection(parameters: GalleryActivity.GalleryParametersHolder): List<WallpaperTextData>?
+    suspend fun fetchCollection(parameters: GalleryParametersHolder): List<WallpaperTextData>?
+    fun getIsNetConnection(): Boolean
 }
 
-class NetRepositoryImpl @Inject constructor(
+class NetRepositoryRetrofit @Inject constructor(
     private val api: ApiService,
-    private val client: OkHttpClient,
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
+    private val context: Context
     ): NetRepository {
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
                                     onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit){
@@ -124,7 +128,7 @@ class NetRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchCardsData(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>? {
+    override suspend fun fetchCardsData(parameters: GalleryParametersHolder) : List<WallpaperTextData>? {
         val token : String = "Bearer " + localRepository.readToken().toString()
 
         val params = HashMap<String, RequestBody>()
@@ -151,7 +155,7 @@ class NetRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchCollection(parameters: GalleryActivity.GalleryParametersHolder) : List<WallpaperTextData>? {
+    override suspend fun fetchCollection(parameters: GalleryParametersHolder) : List<WallpaperTextData>? {
         val params = HashMap<String, RequestBody>()
         val imageType: String = if (parameters.allGenerationTypes) "ALL" else parameters.currentGenerationType.name
         params["imageType"] = RequestBody.create(
@@ -195,6 +199,7 @@ class NetRepositoryImpl @Inject constructor(
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 println("не удалось выполнить запрос")
+                authMessage.value = "Нет доступа к сети"
             }
         })
     }
@@ -244,5 +249,11 @@ class NetRepositoryImpl @Inject constructor(
             }
         }
         return "Произошла ошибка на стороне сервера"
+    }
+
+    override fun getIsNetConnection() : Boolean {
+        val connectivityManager = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return capabilities != null
     }
 }

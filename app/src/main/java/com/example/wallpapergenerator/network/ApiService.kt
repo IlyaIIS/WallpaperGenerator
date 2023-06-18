@@ -50,6 +50,4 @@ interface ApiService {
     @JvmSuppressWildcards
     @POST("/account/register")
     fun register(@Body body: Map<String, Any>):Call<ResponseBody>
-
-    data class IntArrayRequest(val numbers: List<Int>)
 }

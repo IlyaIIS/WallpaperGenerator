@@ -1,6 +1,5 @@
 package com.example.wallpapergenerator.adapters.generationsettingsadapter
 
-import android.R
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -11,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wallpapergenerator.R
 import com.google.android.material.textview.MaterialTextView
 
 sealed class SettingsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -36,9 +36,9 @@ class DropdownViewHolder(itemView: View) : SettingsViewHolder(itemView) {
             itemView.findViewById<MaterialTextView>(com.example.wallpapergenerator.R.id.descriptionField).text = parameter.text
             val view = itemView.findViewById<Spinner>(com.example.wallpapergenerator.R.id.spinnerDropdown)
             val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                itemView.context, R.layout.simple_spinner_item, parameter.options
+                itemView.context, R.layout.spinner_item, parameter.options
             )
-            adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.spinner_list)
             view.adapter = adapter
             view.setSelection(parameter.index)
 
@@ -184,18 +184,6 @@ class ColorViewHolder(itemView: View) : SettingsViewHolder(itemView) {
                         changeColor(Color.rgb(Color.red(color), Color.green(color), validNumber))
                 }
             }
-
-
-/*                view.id = R.id.viewFragmentContainer + parameter.text.hashCode() использование фрагмента
-                val fragmentManager = (itemView.context as AppCompatActivity).supportFragmentManager
-                if ((fragmentManager.findFragmentByTag(parameter.text) == null)) {
-                    val fragment = ColorParameterFragment(
-                        parameter.text,
-                        parameter.color,
-                        parameter.onColorChanged
-                    )
-                    fragmentManager.beginTransaction().replace(view.id, fragment, parameter.text).commit()
-                }*/
         }
     }
 

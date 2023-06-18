@@ -5,16 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.wallpapergenerator.databinding.FragmentGenerationParametersBinding
+import com.example.wallpapergenerator.parameterholders.ParameterHolder
 
 
-class SettingsFragment : Fragment() {
-
+class SettingsFragment(private val parametersHolder: ParameterHolder) : Fragment() {
     private lateinit var binding: FragmentGenerationParametersBinding
-    private lateinit var parametersHolder: ParameterHolder
     private lateinit var adapter: GenerationSettingsRecyclerViewAdapter
 
     override fun onCreateView(
@@ -26,12 +22,6 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        parametersHolder = when (activity) {
-            is GenerationActivity -> ViewModelProvider(requireActivity())[GenerationActivity.GenerationParametersHolder::class.java]
-            is GalleryActivity -> ViewModelProvider(requireActivity())[GalleryActivity.GalleryParametersHolder::class.java]
-            else -> throw NotImplementedError()
-        }
 
         adapter = GenerationSettingsRecyclerViewAdapter()
         binding.paramsList.adapter = adapter
