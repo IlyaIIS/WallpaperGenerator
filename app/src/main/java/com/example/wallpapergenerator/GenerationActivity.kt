@@ -108,6 +108,9 @@ class GenerationActivity : AppCompatActivity() {
         parameters = ViewModelProvider(this, parameterFactory)[GenerationParametersHolder::class.java]
         parameters.loadParameters()
         parameters.currentGenerationType = intent.getIntExtra("typeNum", 0).toEnum()
+        parameters.onParameterChanged = {
+            restartGeneration()
+        }
 
         viewModel = ViewModelProvider(this, viewModelFactory)[GenerationActivityViewModel::class.java]
         viewModel.parematers = parameters
@@ -137,8 +140,7 @@ class GenerationActivity : AppCompatActivity() {
     private fun onGeneratorChanged() {
         updateGenerationName()
         settingsFragment.updateParameters()
-        viewModel.nextImages.clear()
-        requireImage()
+        restartGeneration()
     }
 
     private fun updateGenerationName() {
@@ -162,7 +164,7 @@ class GenerationActivity : AppCompatActivity() {
 
     private var isWaitForImage = false
     private var isGenerating = false
-    private var generationJob: Job? = null
+    private var shouldStopGeneration = false
     private fun requireImage() {
         fun getPixels(): IntArray {
             return when (parameters.currentGenerationType) {
@@ -194,14 +196,15 @@ class GenerationActivity : AppCompatActivity() {
             }
         }
 
-        fun startGeneration(generationType: GenerationType) {
+        fun startGeneration() {
             isGenerating = true
 
-            generationJob = lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch(Dispatchers.IO) {
                 while (true) {
                     viewModel.nextImages.addLast(getPixels())
 
-                    if (generationType != parameters.currentGenerationType) {
+                    if (shouldStopGeneration) {
+                        shouldStopGeneration = false
                         isGenerating = false
                         viewModel.nextImages.clear()
                         requireImage()
@@ -229,10 +232,18 @@ class GenerationActivity : AppCompatActivity() {
             isWaitForImage = true
         }
         if (!isGenerating) {
-            startGeneration(parameters.currentGenerationType)
+            startGeneration()
         }
 
         defineHourglassIndicator()
+    }
+
+    private fun restartGeneration() {
+        viewModel.nextImages.clear()
+        requireImage()
+        if (isGenerating) {
+            shouldStopGeneration = true
+        }
     }
 
     private fun drawImage(image: IntArray) {
