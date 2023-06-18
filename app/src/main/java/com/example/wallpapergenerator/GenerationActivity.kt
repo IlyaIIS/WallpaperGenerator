@@ -31,8 +31,6 @@ import javax.inject.Inject
 class GenerationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGenerationBinding
     private lateinit var mainImage: ImageView
-    private var isWaitForImage = false
-    private var isNextImageReady = false
     private lateinit var parameters: GenerationParametersHolder
     private lateinit var settingsFragment: SettingsFragment
     
@@ -59,7 +57,7 @@ class GenerationActivity : AppCompatActivity() {
 
         Thread {
             Thread.sleep(1000)
-            returnNewImage()
+            requireImage()
         }.start()
     }
 
@@ -130,15 +128,17 @@ class GenerationActivity : AppCompatActivity() {
 
     private fun setPrevGenerator() {
         parameters.currentGenerationType = ((parameters.currentGenerationType.toInt() + 1).mod(GenerationType.values().size)).toEnum()
-        updateGenerationName()
-        returnNewImage()
-        settingsFragment.updateParameters()
+        onGeneratorChanged()
     }
     private fun setNextGenerator() {
         parameters.currentGenerationType = ((parameters.currentGenerationType.toInt() - 1).mod(GenerationType.values().size)).toEnum()
+        onGeneratorChanged()
+    }
+    private fun onGeneratorChanged() {
         updateGenerationName()
-        returnNewImage()
         settingsFragment.updateParameters()
+        viewModel.nextImages.clear()
+        requireImage()
     }
 
     private fun updateGenerationName() {
@@ -153,14 +153,17 @@ class GenerationActivity : AppCompatActivity() {
 
     fun onNextImageGenerationClick() {
         println("Generate next image")
-        returnNewImage()
+        requireImage()
     }
 
     fun onClickMenu(view: View) {
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun returnNewImage() {
+    private var isWaitForImage = false
+    private var isGenerating = false
+    private var generationJob: Job? = null
+    private fun requireImage() {
         fun getPixels(): IntArray {
             return when (parameters.currentGenerationType) {
                 GenerationType.GRADIENTS -> GradientImageGenerator.generateImage(mainImage.width, mainImage.height, parameters.gradientParameters)
@@ -171,48 +174,65 @@ class GenerationActivity : AppCompatActivity() {
             }
         }
 
-        fun startGeneration() {
-            val pixels = getPixels()
+        fun returnImage() {
+            val pixels = viewModel.nextImages.removeFirst()
+            runOnUiThread {
+                drawImage(pixels)
+            }
+        }
 
+        fun defineHourglassIndicator() {
+            println("INDICATOR")
             if (isWaitForImage) {
-                drawHourglassIndicator(IndicatorState.WAITING_FOR_NEXT_IMAGE)
-                isWaitForImage = false
-                runOnUiThread {
-                    drawImage(pixels)
-                }
-                startGeneration()
-            } else {
-                drawHourglassIndicator(IndicatorState.OFF)
-                isNextImageReady = true
-                viewModel.nextImage = pixels
-            }
-        }
-
-        if (!viewModel.isNextImageInitialized()) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                println("INTERNAL generation started")
                 drawHourglassIndicator(IndicatorState.WAITING_FOR_CHANGE_IMAGE)
-                viewModel.nextImage = getPixels()
-                isNextImageReady = true
-                println("INTERNAL generation ended")
-                startGeneration()
+            } else if (viewModel.nextImages.count() == 0) {
+                drawHourglassIndicator(IndicatorState.WAITING_FOR_NEXT_IMAGE)
+            } else if (viewModel.isNextImagePoolFull) {
+                drawHourglassIndicator(IndicatorState.OFF)
+            } else {
+                drawHourglassIndicator(IndicatorState.WAITING_FOR_MAX_REACHED)
             }
         }
 
-        if (isNextImageReady) {
-            println("NEXT IMAGE READY")
-            drawImage(viewModel.nextImage)
-            isNextImageReady = false
-            drawHourglassIndicator(IndicatorState.WAITING_FOR_NEXT_IMAGE)
-            lifecycleScope.launch(Dispatchers.IO) {
-                println("generation started")
-                startGeneration()
-                println("generation ended")
+        fun startGeneration(generationType: GenerationType) {
+            isGenerating = true
+
+            generationJob = lifecycleScope.launch(Dispatchers.IO) {
+                while (true) {
+                    viewModel.nextImages.addLast(getPixels())
+
+                    if (generationType != parameters.currentGenerationType) {
+                        isGenerating = false
+                        viewModel.nextImages.clear()
+                        requireImage()
+                        break
+                    }
+
+                    if (isWaitForImage) {
+                        isWaitForImage = false
+                        returnImage()
+                    }
+
+                    defineHourglassIndicator()
+
+                    if (viewModel.isNextImagePoolFull) {
+                        isGenerating = false
+                        break
+                    }
+                }
             }
+        }
+
+        if (!viewModel.nextImages.isEmpty()) {
+            returnImage()
         } else {
             isWaitForImage = true
-            drawHourglassIndicator(IndicatorState.WAITING_FOR_CHANGE_IMAGE)
         }
+        if (!isGenerating) {
+            startGeneration(parameters.currentGenerationType)
+        }
+
+        defineHourglassIndicator()
     }
 
     private fun drawImage(image: IntArray) {

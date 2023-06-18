@@ -25,6 +25,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val blurViewHeader = binding.fkBlurView
+        blurViewHeader.setBlur(this, blurViewHeader)
+
+        val blurViewMenu = binding.fkBlurViewMenu
+        blurViewMenu.setBlur(this, blurViewMenu)
+
         binding.toCollectionButton.setOnClickListener {
             if (netRepository.getIsNetConnection()) {
                 Intent(this, GalleryActivity::class.java).run { startActivity(this) }

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentContainerView
@@ -40,7 +41,7 @@ class ExpandedWallpaperFragment(
 
         view.findViewById<ConstraintLayout>(R.id.background).setOnClickListener { }
 
-        view.findViewById<Button>(R.id.collapseWallpaperButton).setOnClickListener {
+        view.findViewById<AppCompatImageButton>(R.id.collapseWallpaperButton).setOnClickListener {
             onCollapse()
         }
     }

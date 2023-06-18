@@ -21,11 +21,12 @@ class GenerationActivityViewModel @Inject constructor(
     private val viewModelScope = CoroutineScope(Dispatchers.Main)
     lateinit var mainImage: ImageView
     lateinit var currentImage : IntArray
-    lateinit var nextImage: IntArray
     lateinit var exportImageFragment: ExportImageFragment
     lateinit var parematers: GenerationParametersHolder
 
-    fun isNextImageInitialized() : Boolean { return ::nextImage.isInitialized }
+    var maxImageCount = 4
+    val nextImages: ArrayDeque<IntArray> = ArrayDeque()
+    val isNextImagePoolFull get() = nextImages.count() >= maxImageCount
 
     fun saveImage() {
         println(::currentImage.isInitialized)
