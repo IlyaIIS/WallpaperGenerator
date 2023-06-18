@@ -9,6 +9,7 @@ class LocalRepository @Inject constructor(private val context: Context) {
 
     fun readToken() = authPrefs.getString(DATA_PREF_NAME, "")
     fun saveToken(token: String) = authPrefs.edit().putString(DATA_PREF_NAME, token).apply()
+    fun getIsUserAuthorized() = !readToken().isNullOrEmpty()
     
     fun readSettingString(name: String) = prefs.getString(name, "")
     fun readSettingInt(name: String) = prefs.getInt(name, 0)

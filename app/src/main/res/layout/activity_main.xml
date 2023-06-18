@@ -65,10 +65,10 @@
                 style="@style/Custom.MainButtonStyle"/>
 
             <Button
-                android:id="@+id/generationButtonNoise"
+                android:id="@+id/generationButtonInterference"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Шум"
+                android:text="Интерференция"
                 style="@style/Custom.MainButtonStyle"/>
 
             <Button

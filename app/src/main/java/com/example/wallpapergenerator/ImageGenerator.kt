@@ -295,7 +295,7 @@ class ImageGenerator {
             "Смешивание"
         )
 
-        fun generateSinNoise(xSize: Int, ySize: Int, parameters: GenerationActivity.NoiseParameters) : IntArray {
+        fun generateInterference(xSize: Int, ySize: Int, parameters: GenerationActivity.InterferenceParameters) : IntArray {
             val seed1 = Array(20) { Random.nextFloat()};
 
             val fromColor =
@@ -685,7 +685,7 @@ class ImageGenerator {
 enum class GenerationType {
     GRADIENTS,
     SHAPES,
-    NOISE,
+    INTERFERENCE,
     FRACTALS,
     //LANDSCAPES
 }
@@ -693,7 +693,7 @@ enum class GenerationType {
 val GenerationTypeNames = arrayOf(
     "Градиент",
     "Фигуры",
-    "Шум",
+    "Интерференция",
     "Фракталы",
     //"Пейзажи"
 )

@@ -15,8 +15,7 @@ import com.example.wallpapergenerator.network.WallpaperData
 class ExpandedWallpaperFragment : Fragment() {
     lateinit var exportImageFragment: ExportImageFragment
     var wallpaperData: WallpaperData? = null
-    lateinit var onSaveImage: () -> Unit
-    lateinit var onLikeImage: () -> Unit
+    lateinit var onExportImageFragmentCreated: (ExportImageFragment) -> Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,12 +33,7 @@ class ExpandedWallpaperFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         exportImageFragment = view.findViewById<FragmentContainerView>(R.id.exportImageFragmentContainer).getFragment()
-        exportImageFragment.onSaveImageClick = {
-            onSaveImage()
-        }
-        exportImageFragment.onLikeClick = {
-            onLikeImage()
-        }
+        onExportImageFragmentCreated(exportImageFragment)
 
         view.findViewById<ConstraintLayout>(R.id.background).setOnClickListener { }
 

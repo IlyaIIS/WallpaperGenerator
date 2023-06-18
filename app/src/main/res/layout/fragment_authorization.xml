@@ -8,14 +8,12 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <Button
-        android:id="@+id/to_back_button"
+    <ImageButton
+        android:id="@+id/toBackButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="@color/transparent"
-        android:textColor="@color/black"
-        android:textSize="25sp"
-        android:text="(-" />
+        android:background="@drawable/baseline_keyboard_arrow_left_24"
+        android:backgroundTint="@color/black"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +28,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Имя" />
+            android:hint="Имя"
+            style="@style/Custom.AuthEditTextStyle" />
 
         <EditText
             android:id="@+id/authEditTextTextPassword"
@@ -38,7 +37,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="Пароль"/>
+            android:hint="Пароль"
+            style="@style/Custom.AuthEditTextStyle"/>
 
         <TextView
             android:id="@+id/authErrorMessage"
@@ -53,14 +53,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Войти"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="5dp"
+            style="@style/Custom.MainButtonStyle"/>
 
         <Button
             android:id="@+id/to_registerButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Создать новый аккаунт"
-            android:layout_marginTop="50dp"/>
+            android:textSize="15sp"
+            android:layout_marginTop="50dp"
+            style="@style/Custom.MainButtonStyle"/>
 
     </LinearLayout>
 </LinearLayout>

@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="header_color_default">#FF666670</color>
+    <color name="gray_A">#AAAAAA</color>
+    <color name="gray_5">#555555</color>
 </resources>

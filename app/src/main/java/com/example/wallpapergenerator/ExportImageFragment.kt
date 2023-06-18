@@ -16,6 +16,7 @@ import com.example.wallpapergenerator.databinding.FragmentExportImageBinding
 class ExportImageFragment : Fragment() {
     var onSaveImageClick: () -> Unit = { }
     var onLikeClick: () -> Unit = { }
+    var isLikeHidden = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,8 +31,12 @@ class ExportImageFragment : Fragment() {
         view.findViewById<ImageButton>(R.id.saveImageButton).setOnClickListener {
             onSaveImageClick()
         }
-        view.findViewById<ImageButton>(R.id.likeButton).setOnClickListener {
-            onLikeClick()
+        if (isLikeHidden) {
+            hideLike()
+        } else {
+            view.findViewById<ImageButton>(R.id.likeButton).setOnClickListener {
+                onLikeClick()
+            }
         }
     }
 
@@ -42,6 +47,7 @@ class ExportImageFragment : Fragment() {
         view?.findViewById<ImageView>(R.id.likeButton)?.setImageResource(R.drawable.heart_void)
     }
     fun hideLike() {
-        view?.findViewById<ImageView>(R.id.likeButton)?.isVisible = false
+        view?.findViewById<ImageView>(R.id.likeButton)?.visibility = View.GONE
+        isLikeHidden = true
     }
 }

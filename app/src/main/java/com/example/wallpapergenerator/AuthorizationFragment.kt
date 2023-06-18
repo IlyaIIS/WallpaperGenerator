@@ -12,11 +12,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.wallpapergenerator.databinding.FragmentAuthorizationBinding
 import com.example.wallpapergenerator.di.MainApplication
-import com.example.wallpapergenerator.network.Repository
+import com.example.wallpapergenerator.network.NetRepository
 import javax.inject.Inject
 
 class AuthorizationFragment : Fragment() {
-    @Inject lateinit var repository: Repository
+    @Inject lateinit var netRepository: NetRepository
     private lateinit var binding: FragmentAuthorizationBinding
     private val _authMessage = MutableLiveData<String?>()
     private val authMessage: LiveData<String?> = _authMessage
@@ -60,7 +60,7 @@ class AuthorizationFragment : Fragment() {
             }
             if(username.isNotEmpty() && password.isNotEmpty()) {
                 binding.authErrorMessage.text = ""
-                repository.authorize(username, password, _authMessage)
+                netRepository.authorize(username, password, _authMessage)
             }
         }
     }

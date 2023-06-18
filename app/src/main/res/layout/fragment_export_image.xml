@@ -20,18 +20,19 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginVertical="10dp"
+            android:layout_marginTop="15dp"
             android:background="@color/transparent"
             android:scaleType="centerInside"
             android:src="@drawable/heart_void"
-            android:contentDescription="Set wallpaper" />
+            android:contentDescription="Set wallpaper"
+            />
 
         <ImageButton
             android:id="@+id/saveImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="15dp"
+            android:layout_marginVertical="15dp"
             android:background="@color/transparent"
             android:scaleType="fitCenter"
             android:src="@drawable/download_icon"

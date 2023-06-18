@@ -12,11 +12,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.wallpapergenerator.databinding.FragmentRegistrationBinding
 import com.example.wallpapergenerator.di.MainApplication
-import com.example.wallpapergenerator.network.Repository
+import com.example.wallpapergenerator.network.NetRepository
 import javax.inject.Inject
 
 class RegistrationFragment : Fragment() {
-    @Inject lateinit var repository: Repository
+    @Inject lateinit var netRepository: NetRepository
     private lateinit var binding: FragmentRegistrationBinding
     private val _regMessage = MutableLiveData<String?>()
     private val regMessage: LiveData<String?> = _regMessage
@@ -70,7 +70,7 @@ class RegistrationFragment : Fragment() {
                 && password.isNotEmpty()
                 && confirmPassword.isNotEmpty()) {
                 binding.regErrorMessage.text = ""
-                repository.register(username, email, password, _regMessage)
+                netRepository.register(username, email, password, _regMessage)
             }
         }
     }

@@ -17,7 +17,7 @@ import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
-interface Repository {
+interface NetRepository {
     fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
                            onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit)
     suspend fun fetchImage(id: Int) : Bitmap?
@@ -40,11 +40,11 @@ interface Repository {
     suspend fun fetchCollection(parameters: GalleryActivity.GalleryParametersHolder): List<WallpaperTextData>?
 }
 
-class RepositoryImpl @Inject constructor(
+class NetRepositoryImpl @Inject constructor(
     private val api: ApiService,
     private val client: OkHttpClient,
     private val localRepository: LocalRepository
-    ): Repository {
+    ): NetRepository {
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
                                     onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit){
         println("send image...")

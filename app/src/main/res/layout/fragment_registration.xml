@@ -8,14 +8,12 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <Button
-        android:id="@+id/to_back_button"
+    <ImageButton
+        android:id="@+id/toBackButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="@color/transparent"
-        android:text="(-"
-        android:textColor="@color/black"
-        android:textSize="25sp" />
+        android:background="@drawable/baseline_keyboard_arrow_left_24"
+        android:backgroundTint="@color/black"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +28,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Имя" />
+            android:hint="Имя"
+            style="@style/Custom.AuthEditTextStyle"/>
 
         <EditText
             android:id="@+id/regEditTextTextEmailAddress"
@@ -38,7 +37,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textEmailAddress"
-            android:hint="Почта"/>
+            android:hint="Почта"
+            style="@style/Custom.AuthEditTextStyle"/>
 
         <EditText
             android:id="@+id/regEditTextTextPassword"
@@ -46,7 +46,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="Пароль"/>
+            android:hint="Пароль"
+            style="@style/Custom.AuthEditTextStyle"/>
 
         <EditText
             android:id="@+id/regEditTextTextConfirmPassword"
@@ -54,7 +55,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="Повторите пароль"/>
+            android:hint="Повторите пароль"
+            style="@style/Custom.AuthEditTextStyle"/>
 
         <TextView
             android:id="@+id/regErrorMessage"
@@ -69,14 +71,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Зарегистрироваться"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="5dp"
+            style="@style/Custom.MainButtonStyle"/>
 
         <Button
             android:id="@+id/toAuthorizeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Уже есть аккаунт"
-            android:layout_marginTop="50dp"/>
+            android:textSize="15sp"
+            android:layout_marginTop="50dp"
+            style="@style/Custom.MainButtonStyle"/>
     </LinearLayout>
 
 </LinearLayout>

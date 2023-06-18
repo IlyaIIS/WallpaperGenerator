@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.os.Environment
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -22,8 +23,11 @@ import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import com.example.wallpapergenerator.databinding.ActivityGalleryBinding
 import com.example.wallpapergenerator.di.MainApplication
 import com.example.wallpapergenerator.di.ViewModelFactory
-import com.example.wallpapergenerator.network.Repository
+import com.example.wallpapergenerator.network.NetRepository
 import com.example.wallpapergenerator.network.WallpaperData
+import com.example.wallpapergenerator.repository.FileRepository
+import com.example.wallpapergenerator.repository.LocalRepository
+import com.example.wallpapergenerator.repository.ToastMessageDrawer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,16 +72,19 @@ class GalleryActivity : AppCompatActivity() {
                 wallpaperFragmentContainer.getFragment<ExpandedWallpaperFragment>().setWallpaper(wallpaper)
             }
         }
-        viewModel.context = this
         parameters.onParameterChanged = {
             viewModel.loadData()
         }
 
-        binding.toGalleryButton.setOnClickListener {
-            toggleGalleryAndCollection()
-        }
-        binding.toCollectionButton.setOnClickListener {
-            toggleGalleryAndCollection()
+        if (viewModel.getIsUserAuthorized()) {
+            binding.toCollectionButton.setOnClickListener {
+                toggleGalleryAndCollection()
+            }
+            binding.toGalleryButton.setOnClickListener {
+                toggleGalleryAndCollection()
+            }
+        } else {
+            hideCollection()
         }
         binding.settingsButton.setOnClickListener {
             binding.settingsFragmentContainer.isVisible = !binding.settingsFragmentContainer.isVisible
@@ -87,8 +94,14 @@ class GalleryActivity : AppCompatActivity() {
         }
 
         viewModel.expandedWallpaperFragment = binding.wallpaperFragmentContainer.getFragment()
-        viewModel.expandedWallpaperFragment.onSaveImage = viewModel::saveImage
-        viewModel.expandedWallpaperFragment.onLikeImage = viewModel::likeImage
+        viewModel.expandedWallpaperFragment.onExportImageFragmentCreated = { exportImageFragment ->
+            if (viewModel.getIsUserAuthorized()) {
+                exportImageFragment.onLikeClick = viewModel::likeImage
+            } else {
+                exportImageFragment.hideLike()
+            }
+            exportImageFragment.onSaveImageClick = viewModel::saveImage
+        }
 
         val galleryList = binding.galleryRecyclerView
         val layoutManager = GridLayoutManager(this, 2)
@@ -113,7 +126,12 @@ class GalleryActivity : AppCompatActivity() {
         viewModel.loadData()
     }
 
-    class GalleryViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
+    class GalleryViewModel @Inject constructor(
+            private val netRepository: NetRepository,
+            private val localRepository: LocalRepository,
+            private val fileRepository: FileRepository,
+            private val toastMessageDrawer: ToastMessageDrawer
+        ) : ViewModel() {
         var isInGallery: Boolean = true
         private val _viewModelScope = CoroutineScope(Dispatchers.Main)
         private val _cards = MutableLiveData<List<WallpaperData>>()
@@ -121,12 +139,11 @@ class GalleryActivity : AppCompatActivity() {
         lateinit var parameters: GalleryParametersHolder
         lateinit var onWallpaperClicked: (self: WallpaperData) -> Unit
         lateinit var expandedWallpaperFragment: ExpandedWallpaperFragment
-        lateinit var context : Context
 
         fun loadData() {
             _viewModelScope.launch {
                 val cardData: MutableList<WallpaperData> = mutableListOf()
-                val cardTextData = if (isInGallery) repository.fetchCardsData(parameters) else repository.fetchCollection(parameters)
+                val cardTextData = if (isInGallery) netRepository.fetchCardsData(parameters) else netRepository.fetchCollection(parameters)
                 if (cardTextData != null) {
                     for(item in cardTextData) {
                         cardData.add(WallpaperData(item.id, item.likes, item.isLiked, onWallpaperClicked, ::onWallpaperInScreen))
@@ -141,7 +158,7 @@ class GalleryActivity : AppCompatActivity() {
                 _viewModelScope.launch {
                     var image: Bitmap?
                     withContext(Dispatchers.IO) {
-                        image = repository.fetchImage(wallpaper.id)
+                        image = netRepository.fetchImage(wallpaper.id)
                     }
                     wallpaper.image.value = image
                 }
@@ -150,81 +167,58 @@ class GalleryActivity : AppCompatActivity() {
 
         fun saveImage() {
             if(expandedWallpaperFragment.wallpaperData == null){
-                showMessage("Картинка не загружена!")
+                toastMessageDrawer.showMessage("Картинка не загружена!")
             } else {
-                saveMediaToStorage(expandedWallpaperFragment.wallpaperData!!.image.value!!)
+                val message = fileRepository.saveMediaToStorage(expandedWallpaperFragment.wallpaperData!!.image.value!!)
+                toastMessageDrawer.showMessage(message)
             }
         }
 
         var isWaiting = false
         fun likeImage() {
             if(expandedWallpaperFragment.wallpaperData == null){
-                showMessage("Картинка не загружена!")
+                toastMessageDrawer.showMessage("Картинка не загружена!")
             } else {
                 if (!isWaiting) {
                     if (expandedWallpaperFragment.wallpaperData!!.isLiked) {
                         isWaiting = true
                         viewModelScope.launch(Dispatchers.IO) {
-                            repository.dislikeImage(expandedWallpaperFragment.wallpaperData!!.id)
+                            netRepository.dislikeImage(expandedWallpaperFragment.wallpaperData!!.id)
                             isWaiting = false
                         }
                         expandedWallpaperFragment.wallpaperData!!.isLiked = false
                         expandedWallpaperFragment.wallpaperData!!.likes --
                         expandedWallpaperFragment.wallpaperData!!.run { onLiked(this) }
                         expandedWallpaperFragment.exportImageFragment.dislike()
-                        showMessage("Удалено из галереи")
+                        toastMessageDrawer.showMessage("Удалено из галереи")
                     }else {
                         isWaiting = true
                         viewModelScope.launch(Dispatchers.IO) {
-                            repository.likeImage(expandedWallpaperFragment.wallpaperData!!.id)
+                            netRepository.likeImage(expandedWallpaperFragment.wallpaperData!!.id)
                             isWaiting = false
                         }
                         expandedWallpaperFragment.wallpaperData!!.isLiked = true
                         expandedWallpaperFragment.wallpaperData!!.likes ++
                         expandedWallpaperFragment.wallpaperData!!.run { onLiked(this) }
                         expandedWallpaperFragment.exportImageFragment.like()
-                        showMessage("Сохранено в галерею")
+                        toastMessageDrawer.showMessage("Сохранено в галерею")
                     }
                 }
             }
         }
 
-        fun showMessage(text : String){
-            val duration = Toast.LENGTH_SHORT
+        fun getIsUserAuthorized() = localRepository.getIsUserAuthorized()
+    }
 
-            val toast = Toast.makeText(context, text, duration)
-            toast.show()
-        }
-
-        @SuppressLint("SimpleDateFormat")
-        private fun saveMediaToStorage(bitmap: Bitmap) {
-            val df: DateFormat = SimpleDateFormat("dd_MM_yyyy_hh_mm_ss")
-            val date = df.format(Calendar.getInstance().time)
-            val imageFileName = "wp_${date}.png"
-            try {
-                val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                val imageFile = File(storageDir, imageFileName)
-
-                val fileOutputStream = FileOutputStream(imageFile)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
-                fileOutputStream.flush()
-                fileOutputStream.close()
-                MediaScannerConnection.scanFile(context, arrayOf(imageFile.absolutePath), null, null)
-                showMessage("Успешно сохранено в Pictures/")
-            }
-            catch (e: Exception){
-                if (ContextCompat.checkSelfPermission(context, "android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED)
-                    showMessage("Необходимо разрешение на доступ к мультимедиа!")
-                showMessage("Ошибка!")
-            }
-        }
+    fun hideCollection() {
+        binding.toCollectionButton.visibility = View.GONE
     }
 
     class GalleryParametersHolder : ParameterHolder() {
         var allGenerationTypes = true
         var currentGenerationType: GenerationType = 0.toEnum()
 
-        var orderBy: GalleryOrderType = GalleryOrderType.NONE
+        var orderBy: GalleryOrderType = GalleryOrderType.TIME
 
         var isLikedOnly = false
 
@@ -238,10 +232,12 @@ class GalleryActivity : AppCompatActivity() {
                 CheckboxParameter(
                     "Все типы",
                     allGenerationTypes,
-                ) {value ->
-                    allGenerationTypes = value
-                    updateParameters()
-                    onParameterChanged()
+                ) { value ->
+                    if (allGenerationTypes != value) {
+                        allGenerationTypes = value
+                        updateParameters()
+                        onParameterChanged()
+                    }
                 }
             )
 
@@ -261,7 +257,7 @@ class GalleryActivity : AppCompatActivity() {
             params.add(
                 DropdownParameter(
                     "Сортировка",
-                    0,
+                    orderBy.ordinal,
                     GalleryOrderTypeNames
                 ) {optionNum ->
                     orderBy = optionNum.toEnum()
@@ -293,9 +289,9 @@ class GalleryActivity : AppCompatActivity() {
         val GalleryOrderTypeNames = arrayOf(
             "Нет",
             "Время",
-            "Время уб.",
+            "Время воз.",
             "Лайки",
-            "Лайки уб."
+            "Лайки воз."
         )
     }
 }

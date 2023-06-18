@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity() {
         binding.generationButtonShapes.setOnClickListener {
             goToGenerationAction(GenerationType.SHAPES)
         }
-        binding.generationButtonNoise.setOnClickListener {
-            goToGenerationAction(GenerationType.NOISE)
+        binding.generationButtonInterference.setOnClickListener {
+            goToGenerationAction(GenerationType.INTERFERENCE)
         }
         binding.generationButtonFractals.setOnClickListener {
             goToGenerationAction(GenerationType.FRACTALS)

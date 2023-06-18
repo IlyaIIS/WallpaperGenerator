@@ -28,6 +28,12 @@
         <item name="android:backgroundTint">#AAAAAA</item>
     </style>
 
+    <style name="Custom.AuthEditTextStyle" parent="Theme.AppCompat.Light">
+        <item name="android:textColorHint">@color/gray_A</item>
+        <item name="android:backgroundTint">@color/gray_5</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
     <style name="Theme.WallpaperGenerator.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

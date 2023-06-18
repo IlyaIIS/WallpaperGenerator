@@ -23,8 +23,10 @@ import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import com.example.wallpapergenerator.databinding.ActivityGenerationBinding
 import com.example.wallpapergenerator.di.MainApplication
 import com.example.wallpapergenerator.di.ViewModelFactory
-import com.example.wallpapergenerator.network.Repository
+import com.example.wallpapergenerator.network.NetRepository
+import com.example.wallpapergenerator.repository.FileRepository
 import com.example.wallpapergenerator.repository.LocalRepository
+import com.example.wallpapergenerator.repository.ToastMessageDrawer
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import java.io.File
@@ -65,7 +67,6 @@ class GenerationActivity : AppCompatActivity() {
         parameters.loadParameters()
         mainImage = binding.mainImage
         viewModel.mainImage = mainImage
-        viewModel.context = this
         viewModel.exportImageFragment = binding.exportImageFragmentContainer.getFragment()
         parameters.currentGenerationType = intent.getSerializableExtra("Type") as GenerationType
         updateGenerationName()
@@ -99,12 +100,12 @@ class GenerationActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.exportImageFragment.onSaveImageClick = {
-            viewModel.saveImage()
+        if (viewModel.getIsUserAuthorized()) {
+            viewModel.exportImageFragment.onLikeClick = viewModel::likeImage
+        } else {
+            viewModel.exportImageFragment.hideLike()
         }
-        viewModel.exportImageFragment.onLikeClick = {
-            viewModel.likeImage()
-        }
+        viewModel.exportImageFragment.onSaveImageClick = viewModel::saveImage
 
         settingsFragment = supportFragmentManager.findFragmentById(R.id.settingsFragmentContainer) as SettingsFragment
 
@@ -131,7 +132,7 @@ class GenerationActivity : AppCompatActivity() {
         binding.generationName.text = when (parameters.currentGenerationType) {
             GenerationType.GRADIENTS -> "Градиент"
             GenerationType.SHAPES -> "Фигуры"
-            GenerationType.NOISE -> "Шум"
+            GenerationType.INTERFERENCE -> "Интерференция"
             GenerationType.FRACTALS -> "Фракталы"
             else -> throw NotImplementedError()
         }
@@ -175,7 +176,7 @@ class GenerationActivity : AppCompatActivity() {
             return when (parameters.currentGenerationType) {
                 GenerationType.GRADIENTS -> ImageGenerator.generateGradient(mainImage.width, mainImage.height, parameters.gradientParameters)
                 GenerationType.SHAPES -> ImageGenerator.generateShapes(mainImage.width, mainImage.height, parameters.shapeParameters)
-                GenerationType.NOISE -> ImageGenerator.generateSinNoise(mainImage.width, mainImage.height, parameters.noiseParameters)
+                GenerationType.INTERFERENCE -> ImageGenerator.generateInterference(mainImage.width, mainImage.height, parameters.interferenceParameters)
                 GenerationType.FRACTALS -> ImageGenerator.generateFractal(mainImage.width, mainImage.height, parameters.fractalParameters)
                 else -> throw NotImplementedError()
             }
@@ -225,10 +226,14 @@ class GenerationActivity : AppCompatActivity() {
         }
     }
 
-    class GenerationActivityViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
+    class GenerationActivityViewModel @Inject constructor(
+            private val netRepository: NetRepository,
+            private val localRepository: LocalRepository,
+            private val fileRepository: FileRepository,
+            private val toastMessageDrawer: ToastMessageDrawer
+        ) : ViewModel() {
         private val viewModelScope = CoroutineScope(Dispatchers.Main)
         lateinit var mainImage: ImageView
-        lateinit var context : Context
         lateinit var currentImage : IntArray
         lateinit var nextImage: IntArray
         lateinit var exportImageFragment: ExportImageFragment
@@ -239,12 +244,13 @@ class GenerationActivity : AppCompatActivity() {
         fun saveImage() {
             println(::currentImage.isInitialized)
             if(!::currentImage.isInitialized){
-                ShowMessage("Дождитесь генерации")
+                toastMessageDrawer.showMessage("Дождитесь генерации")
                 return
             }
             val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
             bitmap.setPixels(currentImage, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-            saveMediaToStorage(bitmap)
+            val message = fileRepository.saveMediaToStorage(bitmap)
+            toastMessageDrawer.showMessage(message)
         }
 
         var isImageSaved = false
@@ -256,15 +262,15 @@ class GenerationActivity : AppCompatActivity() {
                 exportImageFragment.like()
                 savedImageId = imageId
                 isWaiting = false
-                ShowMessage("Сохранено в галерею")
+                toastMessageDrawer.showMessage("Сохранено в галерею")
             }
             fun onFailed() {
                 isWaiting = false
-                ShowMessage("Не удалось сохранить")
+                toastMessageDrawer.showMessage("Не удалось сохранить")
             }
 
             if(!::currentImage.isInitialized){
-                ShowMessage("Дождитесь генерации")
+                toastMessageDrawer.showMessage("Дождитесь генерации")
                 return
             }
 
@@ -272,15 +278,15 @@ class GenerationActivity : AppCompatActivity() {
                 viewModelScope.launch(Dispatchers.IO) {
                     isWaiting = true
                     if (isImageSaved) {
-                        repository.deleteImageFromGallery(savedImageId)
+                        netRepository.deleteImageFromGallery(savedImageId)
                         withContext(Dispatchers.Main) {
                             exportImageFragment.dislike()
-                            ShowMessage("Удалено из галереи")
+                            toastMessageDrawer.showMessage("Удалено из галереи")
                         }
                         isImageSaved = false
                         isWaiting = false
                     } else {
-                        repository.saveImageToGallery(
+                        netRepository.saveImageToGallery(
                             currentImage,
                             mainImage.width,
                             mainImage.height,
@@ -297,35 +303,7 @@ class GenerationActivity : AppCompatActivity() {
             viewModelScope.cancel()
         }
 
-        @SuppressLint("SimpleDateFormat")
-        private fun saveMediaToStorage(bitmap: Bitmap) {
-            val df: DateFormat = SimpleDateFormat("dd_MM_yyyy_hh_mm_ss")
-            val date = df.format(Calendar.getInstance().time)
-            val imageFileName = "wp_${date}.png"
-            try {
-                val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                val imageFile = File(storageDir, imageFileName)
-
-                val fileOutputStream = FileOutputStream(imageFile)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
-                fileOutputStream.flush()
-                fileOutputStream.close()
-                MediaScannerConnection.scanFile(context, arrayOf(imageFile.absolutePath), null, null)
-                ShowMessage("Успешно сохранено в Pictures/")
-            }
-            catch (e: Exception){
-                if (ContextCompat.checkSelfPermission(context, "android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED)
-                    ShowMessage("Необходимо разрешение на доступ к мультимедиа!")
-                ShowMessage("Ошибка!")
-            }
-        }
-
-        fun ShowMessage(text : String){
-            val duration = Toast.LENGTH_SHORT
-
-            val toast = Toast.makeText(context, text, duration)
-            toast.show()
-        }
+        fun getIsUserAuthorized() = localRepository.getIsUserAuthorized()
     }
 
     private fun drawImage(image: IntArray) {
@@ -339,7 +317,7 @@ class GenerationActivity : AppCompatActivity() {
         println("DRAWING ENDED")
     }
 
-    data class NoiseParameters(
+    data class InterferenceParameters(
         var isLevelCountRandom: Boolean,
         var levelCount: Int,
         var isTopColorRandom: Boolean,
@@ -388,7 +366,7 @@ class GenerationActivity : AppCompatActivity() {
     class GenerationParametersHolder @Inject constructor(private val repository: LocalRepository) : ParameterHolder() {
         lateinit var currentGenerationType: GenerationType
 
-        var noiseParameters = NoiseParameters(
+        var interferenceParameters = InterferenceParameters(
             true, 4,
             true, Color.RED,
             true, Color.BLUE
@@ -428,14 +406,14 @@ class GenerationActivity : AppCompatActivity() {
         )
 
         private fun saveParameters() {
-            repository.saveSetting(noiseParameters::class.simpleName!!, Gson().toJson(noiseParameters))
+            repository.saveSetting(interferenceParameters::class.simpleName!!, Gson().toJson(interferenceParameters))
             repository.saveSetting(gradientParameters::class.simpleName!!, Gson().toJson(gradientParameters))
             repository.saveSetting(fractalParameters::class.simpleName!!, Gson().toJson(fractalParameters))
             repository.saveSetting(shapeParameters::class.simpleName!!, Gson().toJson(shapeParameters))
         }
 
         fun loadParameters() {
-            noiseParameters = Gson().fromJson(repository.readSettingString(noiseParameters::class.simpleName!!), NoiseParameters::class.java) ?: noiseParameters
+            interferenceParameters = Gson().fromJson(repository.readSettingString(interferenceParameters::class.simpleName!!), InterferenceParameters::class.java) ?: interferenceParameters
             gradientParameters = Gson().fromJson(repository.readSettingString(gradientParameters::class.simpleName!!), GradientParameters::class.java) ?: gradientParameters
             fractalParameters = Gson().fromJson(repository.readSettingString(fractalParameters::class.simpleName!!), FractalParameters::class.java) ?: fractalParameters
             shapeParameters = Gson().fromJson(repository.readSettingString(shapeParameters::class.simpleName!!), ShapeParameters::class.java) ?: shapeParameters
@@ -444,26 +422,26 @@ class GenerationActivity : AppCompatActivity() {
         override fun getParameters(updateParameters: () -> Unit) : List<SettingsParameter> {
             lateinit var params: List<SettingsParameter>
 
-            if (currentGenerationType == GenerationType.NOISE) {
+            if (currentGenerationType == GenerationType.INTERFERENCE) {
                 params = mutableListOf()
                 params.add(
                     CheckboxParameter(
                         "Случайное количество слоёв",
-                        noiseParameters.isLevelCountRandom
+                        interferenceParameters.isLevelCountRandom
                     ) { isChecked ->
-                        noiseParameters.isLevelCountRandom = isChecked
+                        interferenceParameters.isLevelCountRandom = isChecked
                         updateParameters()
                         saveParameters()
                     }
                 )
-                if (!noiseParameters.isLevelCountRandom)
+                if (!interferenceParameters.isLevelCountRandom)
                     params.add(
                         InputDigitParameter(
                             "Количество слоёв",
-                            noiseParameters.levelCount,
+                            interferenceParameters.levelCount,
                             1, 9999
                         ) { number ->
-                            noiseParameters.levelCount = number
+                            interferenceParameters.levelCount = number
                             saveParameters()
                         }
                     )
@@ -471,20 +449,20 @@ class GenerationActivity : AppCompatActivity() {
                 params.add(
                     CheckboxParameter(
                         "Случайный верхний цвет",
-                        noiseParameters.isTopColorRandom
+                        interferenceParameters.isTopColorRandom
                     ) { isChecked ->
-                        noiseParameters.isTopColorRandom = isChecked
+                        interferenceParameters.isTopColorRandom = isChecked
                         updateParameters()
                         saveParameters()
                     }
                 )
-                if (!noiseParameters.isTopColorRandom)
+                if (!interferenceParameters.isTopColorRandom)
                     params.add(
                         ColorParameter(
                             "Верхний цвет",
-                            noiseParameters.topColor,
+                            interferenceParameters.topColor,
                         ) { color ->
-                            noiseParameters.topColor = color
+                            interferenceParameters.topColor = color
                             saveParameters()
                         }
                     )
@@ -492,20 +470,20 @@ class GenerationActivity : AppCompatActivity() {
                 params.add(
                     CheckboxParameter(
                         "Случайный нижний цвет",
-                        noiseParameters.isBottomColorRandom
+                        interferenceParameters.isBottomColorRandom
                     ) { isChecked ->
-                        noiseParameters.isBottomColorRandom = isChecked
+                        interferenceParameters.isBottomColorRandom = isChecked
                         updateParameters()
                         saveParameters()
                     }
                 )
-                if (!noiseParameters.isBottomColorRandom) {
+                if (!interferenceParameters.isBottomColorRandom) {
                     params.add(
                         ColorParameter(
                             "Нижний цвет",
-                            noiseParameters.bottomColor,
+                            interferenceParameters.bottomColor,
                         ) { color ->
-                            noiseParameters.bottomColor = color
+                            interferenceParameters.bottomColor = color
                             saveParameters()
                         }
                     )
