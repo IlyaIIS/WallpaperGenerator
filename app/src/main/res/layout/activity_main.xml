@@ -58,7 +58,7 @@
                 android:layout_gravity="center"
                 android:layout_marginHorizontal="15dp"
                 android:layout_weight="1"
-                android:text="@string/SignInText"
+                android:text="@string/login"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="@id/fkBlurView"
                 app:layout_constraintTop_toTopOf="parent"

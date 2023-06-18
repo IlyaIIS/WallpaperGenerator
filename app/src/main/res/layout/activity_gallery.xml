@@ -90,7 +90,6 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/settingsFragmentContainer"
-        android:name="com.example.wallpapergenerator.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
