@@ -1,5 +1,7 @@
 package com.example.wallpapergenerator.adapters
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +31,16 @@ class GalleryAdapter() : androidx.recyclerview.widget.ListAdapter<WallpaperData,
         private val cardImage: ImageView = itemView.findViewById(com.example.wallpapergenerator.R.id.cardImage)
 
         fun initialize(data: WallpaperData) {
-            cardImage.setImageResource(R.drawable.placeholder_chuck)
+            var colorHex = "#8050A2"
+            if(data.mainColor.isNotEmpty())
+                colorHex = data.mainColor
+            val colorInt = Color.parseColor(colorHex)
+            val bitmap = Bitmap.createBitmap(1024, 1280, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            canvas.drawColor(colorInt)
+
+            cardImage.setImageBitmap(bitmap)
+
             data.image.observe(itemView.context as LifecycleOwner) {
                 cardImage.setImageBitmap(it)
             }

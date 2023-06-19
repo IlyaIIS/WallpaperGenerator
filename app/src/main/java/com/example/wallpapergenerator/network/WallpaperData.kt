@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 
 data class WallpaperData(
     val id: Int,
+    var mainColor: String,
     var likes: Int,
     var isLiked: Boolean,
     val onClick: (self: WallpaperData) -> Unit,
@@ -17,5 +18,6 @@ data class WallpaperData(
 data class WallpaperTextData(
     val id: Int,
     val likes: Int,
-    val isLiked: Boolean
+    val isLiked: Boolean,
+    var mainColor: String
 )

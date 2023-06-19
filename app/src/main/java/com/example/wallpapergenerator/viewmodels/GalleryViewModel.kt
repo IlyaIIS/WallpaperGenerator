@@ -43,7 +43,7 @@ class GalleryViewModel @Inject constructor(
             val cardTextData = if (isInGallery) netRepository.fetchCardsData(parameters) else netRepository.fetchCollection(parameters)
             if (cardTextData != null) {
                 for(item in cardTextData) {
-                    cardData.add(WallpaperData(item.id, item.likes, item.isLiked, onWallpaperClicked, ::onWallpaperInScreen))
+                    cardData.add(WallpaperData(item.id, item.mainColor, item.likes, item.isLiked, onWallpaperClicked, ::onWallpaperInScreen))
                 }
             }
             _cards.value = cardData
