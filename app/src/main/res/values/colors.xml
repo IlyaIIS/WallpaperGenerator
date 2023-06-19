@@ -14,4 +14,6 @@
     <color name="android_studio_dark_theme">#2D2F31</color>
     <color name="gray_E">#FFEEEEEE</color>
     <color name="red_like">#FFFF3636</color>
+    <color name="red_like_not_active">#FFC2C2</color>
+    <color name="default_icon_color">#FFE9E9E9</color>
 </resources>

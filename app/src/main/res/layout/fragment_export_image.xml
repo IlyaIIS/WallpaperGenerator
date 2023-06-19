@@ -37,7 +37,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/download_icon"
             android:contentDescription="@string/download"
-            app:tint="@color/gray_E" />
+            app:tint="@color/default_icon_color" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -49,9 +49,10 @@ class NetRepositoryRetrofit @Inject constructor(
     private val localRepository: LocalRepository,
     private val context: Context
     ): NetRepository {
+    private val TAG = "NetRepositoryRetrofit"
     override fun saveImageToGallery(image: IntArray, width: Int, height: Int, generationType: GenerationType,
                                     onSuccess : (imageId: Int) -> Unit,  onFailed : () -> Unit){
-        println("send image...")
+        Log.i(TAG, "send image...")
 
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
@@ -79,13 +80,13 @@ class NetRepositoryRetrofit @Inject constructor(
                     onFailed()
                 }
 
-                println(response.code())
-                println(response.message())
+                Log.i(TAG, response.code().toString())
+                Log.i(TAG, response.message())
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 onFailed()
-                println("не удалось сохранить изображение")
+                Log.i(TAG, "не удалось сохранить изображение")
             }
         })
     }
@@ -94,7 +95,7 @@ class NetRepositoryRetrofit @Inject constructor(
         imageId: Int
     ) {
         try {
-            println("Удаление изображения")
+            Log.i(TAG, "Удаление изображения")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.deleteImage(imageId.toString(), token)
         } catch (e: Exception) {
@@ -103,7 +104,7 @@ class NetRepositoryRetrofit @Inject constructor(
 
     override suspend fun likeImage(imageId: Int) {
         try {
-            println("Лайк изображения")
+            Log.i(TAG, "Лайк изображения")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.likeImage(imageId.toString(), token)
         } catch (e: Exception) {
@@ -112,7 +113,7 @@ class NetRepositoryRetrofit @Inject constructor(
 
     override suspend fun dislikeImage(imageId: Int) {
         try {
-            println("Лайк изображения")
+            Log.i(TAG, "Лайк изображения")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.dislikeImage(imageId.toString(), token)
         } catch (e: Exception) {
@@ -198,7 +199,7 @@ class NetRepositoryRetrofit @Inject constructor(
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                println("не удалось выполнить запрос")
+                Log.i(TAG, "не удалось выполнить запрос")
                 authMessage.value = "Нет доступа к сети"
             }
         })
@@ -220,8 +221,7 @@ class NetRepositoryRetrofit @Inject constructor(
         val response = api.register(body).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 regMessage.value = checkResponse(response)
-                print("сохраненные данные (token): ")
-                println(localRepository.readToken())
+                Log.i(TAG, "сохраненные данные (token): " + localRepository.readToken())
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 regMessage.value = "не удалось выполнить запрос"
@@ -235,7 +235,7 @@ class NetRepositoryRetrofit @Inject constructor(
         val gson = Gson()
 
         if(response.isSuccessful){
-            println(body.toString())
+            Log.i(TAG, body.toString())
             if(body != null){
                 val jsonObject = gson.fromJson(body.toString(), JsonObject::class.java)
                 localRepository.saveToken(jsonObject.get("token").asString)
