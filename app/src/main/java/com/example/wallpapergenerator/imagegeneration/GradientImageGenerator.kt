@@ -2,6 +2,7 @@ package com.example.wallpapergenerator.imagegeneration
 
 import android.graphics.Color
 import android.graphics.Point
+import com.example.wallpapergenerator.SupportTools.Companion.pmap
 import com.example.wallpapergenerator.imagegeneration.SupportMath
 import com.example.wallpapergenerator.parameterholders.GradientParameters
 import com.google.android.material.math.MathUtils
@@ -58,19 +59,20 @@ class GradientImageGenerator : ImageGenerator() {
             fun drawGradient(pixels: IntArray, altMod: (alt: Float, size: Int) -> Float ) {
                 val k = Random.nextFloat()
                 val colors = getColorArray()
-                for(y in 0 until ySize)
-                    for(x in 0 until xSize) {
+                (0 until ySize).toList().pmap { y ->
+                    for (x in 0 until xSize) {
                         val alt = MathUtils.lerp(
                             x / xSize.toFloat(),
                             y / ySize.toFloat(),
                             k
                         )
                         val subAlt = altMod(alt, colors.size)
-                        val i = (alt*(colors.size-1)).toInt()
+                        val i = (alt * (colors.size - 1)).toInt()
                         val fromColor = colors[i]
-                        val toColor = colors[i+1]
-                        pixels[x+y*xSize] = SupportMath.colorLerp(fromColor, toColor, subAlt)
+                        val toColor = colors[i + 1]
+                        pixels[x + y * xSize] = SupportMath.colorLerp(fromColor, toColor, subAlt)
                     }
+                }
             }
             fun drawStrictLineGradient(pixels: IntArray) {
                 drawGradient(pixels) { alt, _ -> alt }
@@ -89,7 +91,7 @@ class GradientImageGenerator : ImageGenerator() {
             fun drawCircleGradient(pixels: IntArray) {
                 val pos = Point(Random.nextInt(xSize), Random.nextInt(ySize))
                 val colors = getColorArray()
-                for(y in 0 until ySize)
+                (0 until ySize).toList().pmap { y ->
                     for(x in 0 until xSize) {
                         val alt = SupportMath.getPointDistance(Point(x, y), pos)/ sqrt(xSize.toFloat().pow(2) + ySize.toFloat().pow(2f))
                         val i = (alt*(colors.size-1)).toInt()
@@ -98,12 +100,13 @@ class GradientImageGenerator : ImageGenerator() {
                         val toColor = colors[i+1]
                         pixels[x+y*xSize] = SupportMath.colorLerp(fromColor, toColor, subAlt)
                     }
+                }
             }
             fun drawStrictCircleGradient(pixels: IntArray) {
                 val levelCount = Random.nextInt(10,100)
                 val pos = Point(Random.nextInt(xSize), Random.nextInt(ySize))
                 val colors = getColorArray()
-                for(y in 0 until ySize)
+                (0 until ySize).toList().pmap { y ->
                     for(x in 0 until xSize) {
                         val alt = (SupportMath.getPointDistance(Point(x, y), pos)/ sqrt(xSize.toFloat().pow(2) + ySize.toFloat().pow(2f)) *levelCount).toInt().toFloat()/levelCount
                         val i = (alt*(colors.size-1)).toInt()
@@ -112,13 +115,14 @@ class GradientImageGenerator : ImageGenerator() {
                         val toColor = colors[i+1]
                         pixels[x+y*xSize] = SupportMath.colorLerp(fromColor, toColor, subAlt)
                     }
+                }
             }
             fun drawStrictPointsGradient(pixels: IntArray) {
                 val points = Array(arraySize) {
                     Point(Random.nextInt(xSize), Random.nextInt(ySize))
                 }
                 val colors = getColorArray()
-                for(y in 0 until ySize)
+                (0 until ySize).toList().pmap { y ->
                     for(x in 0 until xSize) {
                         var r = 0f
                         var g = 0f
@@ -132,13 +136,14 @@ class GradientImageGenerator : ImageGenerator() {
 
                         pixels[x+y*xSize] = Color.rgb((r).toInt(), (g).toInt(), (b).toInt())
                     }
+                }
             }
             fun drawPointsGradient(pixels: IntArray) {
                 val points = Array(arraySize) {
                     Point(Random.nextInt(xSize), Random.nextInt(ySize))
                 }
                 val colors = getColorArray()
-                for(y in 0 until ySize)
+                (0 until ySize).toList().pmap { y ->
                     for(x in 0 until xSize) {
                         var r = 0f
                         var g = 0f
@@ -158,6 +163,7 @@ class GradientImageGenerator : ImageGenerator() {
 
                         pixels[x+y*xSize] = Color.rgb((r).toInt(), (g).toInt(), (b).toInt())
                     }
+                }
             }
 
             val pixels = IntArray(xSize*ySize)

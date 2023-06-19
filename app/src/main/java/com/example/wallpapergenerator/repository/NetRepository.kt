@@ -94,10 +94,12 @@ class NetRepositoryRetrofit @Inject constructor(
         imageId: Int
     ) {
         try {
-            println("Удаление изображения")
+            println("Удаление изображения id: ${imageId}")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.deleteImage(imageId.toString(), token)
+            println("Изображение удалено id: ${imageId}")
         } catch (e: Exception) {
+            println("Не удалось удалить: ${e.message}")
         }
     }
 

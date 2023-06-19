@@ -1,6 +1,7 @@
 package com.example.wallpapergenerator.imagegeneration
 
 import android.graphics.Color
+import com.example.wallpapergenerator.SupportTools.Companion.pmap
 import com.example.wallpapergenerator.parameterholders.InterferenceParameters
 import kotlin.math.max
 import kotlin.math.min
@@ -27,7 +28,7 @@ class InterferenceImageGenerator : ImageGenerator() {
             val levelCount = if (parameters.isLevelCountRandom) Random.nextInt(3,10).toFloat() else parameters.levelCount
 
             val pixels = IntArray(xSize*ySize)
-            for (y in 0 until ySize) {
+            (0 until ySize).toList().pmap { y ->
                 for (x in 0 until xSize) {
                     var alt = 0f;
                     /*for (i in seed1.indices){

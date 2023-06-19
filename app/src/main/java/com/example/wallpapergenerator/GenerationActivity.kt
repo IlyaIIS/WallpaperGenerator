@@ -26,6 +26,7 @@ import com.example.wallpapergenerator.viewmodels.GenerationActivityViewModel
 import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
+import kotlin.system.measureTimeMillis
 
 
 class GenerationActivity : AppCompatActivity() {
@@ -178,9 +179,12 @@ class GenerationActivity : AppCompatActivity() {
 
         fun returnImage() {
             val pixels = viewModel.nextImages.removeFirst()
-            runOnUiThread {
-                drawImage(pixels)
+            val result = measureTimeMillis {
+                runOnUiThread {
+                    drawImage(pixels)
+                }
             }
+            println("DRAWING TIME: $result")
         }
 
         fun defineHourglassIndicator() {
@@ -201,7 +205,10 @@ class GenerationActivity : AppCompatActivity() {
 
             lifecycleScope.launch(Dispatchers.IO) {
                 while (true) {
-                    viewModel.nextImages.addLast(getPixels())
+                    val result = measureTimeMillis {
+                        viewModel.nextImages.addLast(getPixels())
+                    }
+                    println("GENERATION TIME: $result")
 
                     if (shouldStopGeneration) {
                         shouldStopGeneration = false

@@ -60,6 +60,11 @@ open class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             onClick()
             return super.onSingleTapConfirmed(e)
         }
+
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            onClick()
+            return super.onDoubleTap(e)
+        }
     }
 
     open fun onSwipeRight() {}

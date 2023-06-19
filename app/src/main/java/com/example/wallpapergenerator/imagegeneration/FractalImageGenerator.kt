@@ -2,6 +2,7 @@ package com.example.wallpapergenerator.imagegeneration
 
 import android.graphics.Color
 import android.graphics.Point
+import com.example.wallpapergenerator.SupportTools.Companion.pmap
 import com.example.wallpapergenerator.parameterholders.FractalParameters
 import kotlin.math.sin
 import kotlin.random.Random
@@ -63,19 +64,19 @@ class FractalImageGenerator : ImageGenerator() {
             val zoom = 1 + if (parameters.isZoomRandom) Random.nextFloat() else parameters.zoom/100f
             val colKofs = IntArray(3) { Random.nextInt(20) }
 
-            for(y in 0 until ySize)
-                for(x in 0 until xSize) {
+            (0 until ySize).toList().pmap { y ->
+                for (x in 0 until xSize) {
                     val count = juliaSetFormula(x.toFloat(), y.toFloat(), offset.x.toFloat(), offset.y.toFloat(), zoom)
-                    pixels[x+y*xSize] = when (parameters.coloringType) {
+                    pixels[x + y * xSize] = when (parameters.coloringType) {
                         FractalColoringType.MODULE -> Color.rgb(
-                            (count*colKofs[0]%255),
-                            (count*colKofs[1]%255),
-                            (count*colKofs[2]%255)
+                            (count * colKofs[0] % 255),
+                            (count * colKofs[1] % 255),
+                            (count * colKofs[2] % 255)
                         )
                         FractalColoringType.SIN -> Color.rgb(
-                            (sin(count/colKofs[0].toFloat()) *255).toInt(),
-                            (sin(count/colKofs[1].toFloat()) *255).toInt(),
-                            (sin(count/colKofs[2].toFloat()) *255).toInt()
+                            (sin(count / colKofs[0].toFloat()) * 255).toInt(),
+                            (sin(count / colKofs[1].toFloat()) * 255).toInt(),
+                            (sin(count / colKofs[2].toFloat()) * 255).toInt()
                         )
                         FractalColoringType.LERP -> SupportMath.colorLerp(
                             fromColor,
@@ -85,6 +86,7 @@ class FractalImageGenerator : ImageGenerator() {
                         else -> throw NotImplementedError()
                     }
                 }
+            }
 
             return pixels
         }

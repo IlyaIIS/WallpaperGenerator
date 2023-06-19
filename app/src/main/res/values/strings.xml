@@ -50,6 +50,7 @@
     <string name="error_no_net_connection">Отсутствует подключение к интернету</string>
     <string name="error_not_saved">Не удалось сохранить</string>
     <string name="warning_wait_for_generation">Дождитесь генерации</string>
+    <string name="warning_wait">Подождите</string>
     <string name="message_saved_to_gallery">Сохранено в галерею</string>
     <string name="message_removed_from_gallery">Удалено из галереи</string>
     <string name="set_wallpaper">Set wallpaper</string>

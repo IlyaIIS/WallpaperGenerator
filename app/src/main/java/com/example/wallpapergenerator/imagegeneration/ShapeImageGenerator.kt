@@ -2,12 +2,14 @@ package com.example.wallpapergenerator.imagegeneration
 
 import android.graphics.Color
 import android.graphics.Point
+import com.example.wallpapergenerator.SupportTools.Companion.pmap
 import com.example.wallpapergenerator.parameterholders.ShapeParameters
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import kotlin.system.measureTimeMillis
 
 class ShapeImageGenerator : ImageGenerator() {
     enum class ShapeType {
@@ -82,7 +84,8 @@ class ShapeImageGenerator : ImageGenerator() {
                 for(y in 0 until  ySize)
                     for(x in 0 until xSize)
                         pixels[x + y*xSize] = backgroundColor
-                for(y in 0 until  ySize)
+
+                (0 until ySize).toList().pmap { y ->
                     for(x in 0 until xSize)
                         for(shape in shapes) {
                             if (shape.contains(Point(x, y))) {
@@ -91,6 +94,7 @@ class ShapeImageGenerator : ImageGenerator() {
                                 pixels[x + y*xSize] = Color.WHITE;
                             }
                         }
+                    }
             }
 
             fun getAbleShapes() : List<ShapeType> {
@@ -115,6 +119,7 @@ class ShapeImageGenerator : ImageGenerator() {
             val shapes = Array(Random.nextInt(parameters.minShapeCount, parameters.maxShapeCount+1)) {
                 getRndShape(xSize, ySize, ableShapes)
             }
+
             drawShapes(pixels, shapes)
 
             return pixels

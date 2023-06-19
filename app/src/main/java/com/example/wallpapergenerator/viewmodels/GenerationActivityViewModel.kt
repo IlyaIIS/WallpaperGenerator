@@ -82,6 +82,8 @@ class GenerationActivityViewModel @Inject constructor(
                         ::onFailed)
                 }
             }
+        } else {
+            toastMessageDrawer.showMessage(resourceRepository.getString(R.string.warning_wait))
         }
     }
 
