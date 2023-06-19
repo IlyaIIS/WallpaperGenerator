@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".parameters.ColorParameterFragment"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/descriptionField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Цвет: "
-        android:layout_centerVertical="true"
         android:textSize="20sp"
         android:textColor="@color/white"
-        android:fontFamily="@font/jura_bold"/>
+        android:fontFamily="@font/jura_bold"
+        android:layout_gravity="start"
+        app:layout_constraintBottom_toBottomOf="@id/colorLayout"
+        app:layout_constraintTop_toTopOf="@id/colorLayout"
+        app:layout_constraintStart_toStartOf="parent"/>
     <LinearLayout
+        android:id="@+id/colorLayout"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
         <EditText
             android:id="@+id/inputBlue"
             android:layout_width="40dp"
@@ -28,7 +32,6 @@
             tools:text="255"
             android:gravity="center"
             android:backgroundTint="#0000FF"
-            android:layout_alignParentEnd="true"
             android:fontFamily="@font/jura_bold"
             android:textColor="@color/white"/>
         <EditText
@@ -39,7 +42,6 @@
             tools:text="255"
             android:gravity="center"
             android:backgroundTint="#00FF00"
-            android:layout_toStartOf="@+id/inputBlue"
             android:fontFamily="@font/jura_bold"
             android:textColor="@color/white"/>
         <EditText
@@ -50,7 +52,6 @@
             tools:text="255"
             android:gravity="center"
             android:backgroundTint="#FF0000"
-            android:layout_toStartOf="@+id/inputGreen"
             android:fontFamily="@font/jura_bold"
             android:textColor="@color/white"/>
         <TextView
@@ -58,10 +59,8 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:background="@drawable/color_box"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/inputRed"
             android:fontFamily="@font/jura_bold"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white"
+            android:layout_gravity="center_vertical"/>
     </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

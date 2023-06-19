@@ -121,8 +121,8 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/settingsFragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        tools:layout="@layout/fragment_generation_parameters"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_settings"
         android:name="com.example.wallpapergenerator.BlankFragment"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

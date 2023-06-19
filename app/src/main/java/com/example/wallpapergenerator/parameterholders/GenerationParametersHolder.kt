@@ -58,6 +58,7 @@ data class ShapeParameters(
 
 class GenerationParametersHolder @Inject constructor(private val repository: LocalRepository) : ParameterHolder() {
     lateinit var currentGenerationType: GenerationType
+    var onParameterChanged: () -> Unit = { }
 
     var interferenceParameters = InterferenceParameters(
         true, 4,
@@ -124,6 +125,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     interferenceParameters.isLevelCountRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (!interferenceParameters.isLevelCountRandom)
@@ -135,6 +137,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { number ->
                         interferenceParameters.levelCount = number
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
 
@@ -146,6 +149,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     interferenceParameters.isTopColorRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (!interferenceParameters.isTopColorRandom)
@@ -156,6 +160,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { color ->
                         interferenceParameters.topColor = color
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
 
@@ -167,6 +172,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     interferenceParameters.isBottomColorRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (!interferenceParameters.isBottomColorRandom) {
@@ -177,6 +183,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { color ->
                         interferenceParameters.bottomColor = color
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
             }
@@ -190,6 +197,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     shapeParameters.isBackgroundColorRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (!shapeParameters.isBackgroundColorRandom) {
@@ -200,6 +208,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { color ->
                         shapeParameters.backgroundColor = color
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
             }
@@ -213,6 +222,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     shapeParameters.minShapeCount = numberFrom
                     shapeParameters.maxShapeCount = numberTo
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add (
@@ -223,6 +233,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { number ->
                     shapeParameters.borderChance = number
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add (
@@ -232,6 +243,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { isChecked ->
                     shapeParameters.ableCircles = isChecked
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add (
@@ -241,6 +253,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { isChecked ->
                     shapeParameters.ableRectangles = isChecked
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add (
@@ -250,6 +263,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { isChecked ->
                     shapeParameters.ableTriangles = isChecked
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add (
@@ -259,6 +273,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { isChecked ->
                     shapeParameters.ableLines = isChecked
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add (
@@ -268,6 +283,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { isChecked ->
                     shapeParameters.ablePlanes = isChecked
                     saveParameters()
+                    onParameterChanged()
                 }
             )
 
@@ -280,6 +296,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { optionNum ->
                     gradientParameters.gradientType = optionNum.toEnum()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add(
@@ -290,6 +307,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     gradientParameters.isColorsRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (gradientParameters.isColorsRandom) {
@@ -303,6 +321,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                         gradientParameters.minColorsCount = numberFrom
                         gradientParameters.maxColorsCount = numberTo
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
             } else {
@@ -318,6 +337,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                                 Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255)))
                         updateParameters()
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
                 for (i in 0 until gradientParameters.colorsCount) {
@@ -328,6 +348,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                         ) { color ->
                             gradientParameters.colors[i] = color
                             saveParameters()
+                            onParameterChanged()
                         }
                     )
                 }
@@ -342,6 +363,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { optionNum ->
                     fractalParameters.fractalType = optionNum.toEnum()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add(
@@ -353,6 +375,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     fractalParameters.coloringType = optionNum.toEnum()
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add(
@@ -363,6 +386,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 ) { number ->
                     fractalParameters.depth = number
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             params.add(
@@ -373,6 +397,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     fractalParameters.isZoomRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (!fractalParameters.isZoomRandom) {
@@ -384,6 +409,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { number ->
                         fractalParameters.zoom = number
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
             }
@@ -395,6 +421,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     fractalParameters.isOffsetRandom = isChecked
                     updateParameters()
                     saveParameters()
+                    onParameterChanged()
                 }
             )
             if (!fractalParameters.isOffsetRandom) {
@@ -406,6 +433,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { number ->
                         fractalParameters.offsetX = number
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
                 params.add(
@@ -416,6 +444,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                     ) { number ->
                         fractalParameters.offsetY = number
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
             }
@@ -428,6 +457,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                         fractalParameters.isTopColorRandom = isChecked
                         updateParameters()
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
                 if (!fractalParameters.isTopColorRandom)
@@ -438,6 +468,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                         ) { color ->
                             fractalParameters.topColor = color
                             saveParameters()
+                            onParameterChanged()
                         }
                     )
 
@@ -449,6 +480,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                         fractalParameters.isBottomColorRandom = isChecked
                         updateParameters()
                         saveParameters()
+                        onParameterChanged()
                     }
                 )
                 if (!fractalParameters.isBottomColorRandom) {
@@ -459,6 +491,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                         ) { color ->
                             fractalParameters.bottomColor = color
                             saveParameters()
+                            onParameterChanged()
                         }
                     )
                 }

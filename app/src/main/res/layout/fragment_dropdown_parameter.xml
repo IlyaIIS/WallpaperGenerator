@@ -30,5 +30,4 @@
             android:textColor="@color/white"
             android:background="@color/android_studio_dark_theme"/>
     </FrameLayout>
-
 </RelativeLayout>
