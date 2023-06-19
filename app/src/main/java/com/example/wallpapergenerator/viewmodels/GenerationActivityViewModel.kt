@@ -1,6 +1,7 @@
 package com.example.wallpapergenerator.viewmodels
 
 import android.graphics.Bitmap
+import android.util.Log
 import android.widget.ImageView
 import androidx.lifecycle.ViewModel
 import com.example.wallpapergenerator.ExportImageFragment
@@ -18,6 +19,7 @@ class GenerationActivityViewModel @Inject constructor(
     private val toastMessageDrawer: ToastMessageDrawer,
     private val resourceRepository: ResourceRepository
 ) : ViewModel() {
+    private val TAG = "GenerationActivityViewModel"
     private val viewModelScope = CoroutineScope(Dispatchers.Main)
     lateinit var mainImage: ImageView
     lateinit var currentImage : IntArray
@@ -29,7 +31,7 @@ class GenerationActivityViewModel @Inject constructor(
     val isNextImagePoolFull get() = nextImages.count() >= maxImageCount
 
     fun saveImage() {
-        println(::currentImage.isInitialized)
+        Log.i(TAG, ::currentImage.isInitialized.toString())
         if(!::currentImage.isInitialized){
             toastMessageDrawer.showMessage(resourceRepository.getString(R.string.warning_wait_for_generation))
             return

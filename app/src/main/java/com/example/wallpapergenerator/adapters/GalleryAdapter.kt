@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -51,12 +52,16 @@ class GalleryAdapter() : androidx.recyclerview.widget.ListAdapter<WallpaperData,
             }
 
             data.onLiked = {
+                val notActiveColor = ContextCompat.getColor(itemView.context, R.color.red_like_not_active)
+                val activeColor = ContextCompat.getColor(itemView.context, R.color.red_like)
                 if (data.isLiked) {
-                    itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.WHITE)
-                    itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.BLACK)
-                } else {
-                    itemView.findViewById<ImageView>(R.id.heart).setColorFilter(Color.BLACK)
+                    itemView.findViewById<ImageView>(R.id.heart)
+                        .setColorFilter(activeColor)
                     itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.WHITE)
+                } else {
+                    itemView.findViewById<ImageView>(R.id.heart)
+                        .setColorFilter(notActiveColor)
+                    itemView.findViewById<TextView>(R.id.cardText).setTextColor(Color.BLACK)
                 }
                 cardText.text = data.likes.toString()
             }

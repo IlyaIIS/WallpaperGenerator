@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +31,7 @@ import kotlin.system.measureTimeMillis
 
 
 class GenerationActivity : AppCompatActivity() {
+    private val TAG = "GenerationActivity"
     private lateinit var binding: ActivityGenerationBinding
     private lateinit var mainImage: ImageView
     private lateinit var parameters: GenerationParametersHolder
@@ -155,7 +157,7 @@ class GenerationActivity : AppCompatActivity() {
     }
 
     fun onNextImageGenerationClick() {
-        println("Generate next image")
+        Log.i(TAG, "Generate next image")
         requireImage()
     }
 
@@ -188,7 +190,7 @@ class GenerationActivity : AppCompatActivity() {
         }
 
         fun defineHourglassIndicator() {
-            println("INDICATOR")
+            Log.i(TAG, "INDICATOR")
             if (isWaitForImage) {
                 drawHourglassIndicator(IndicatorState.WAITING_FOR_CHANGE_IMAGE)
             } else if (viewModel.nextImages.count() == 0) {
@@ -254,14 +256,14 @@ class GenerationActivity : AppCompatActivity() {
     }
 
     private fun drawImage(image: IntArray) {
-        println("DRAWING STARTED")
+        Log.i(TAG, "DRAWING STARTED")
         viewModel.isImageSaved = false
         viewModel.exportImageFragment.dislike()
         viewModel.currentImage = image
         val bitmap = Bitmap.createBitmap(mainImage.width, mainImage.height, Bitmap.Config.ARGB_8888)
         bitmap.setPixels(image, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         mainImage.setImageBitmap(bitmap)
-        println("DRAWING ENDED")
+        Log.i(TAG, "DRAWING ENDED")
     }
 
     enum class IndicatorState {

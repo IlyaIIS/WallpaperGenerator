@@ -57,4 +57,5 @@
     <string name="download">Download</string>
     <string name="range_separator">-</string>
     <string name="parameters">Параметры</string>
+    <string name="gradient_caps">ГРАДИЕНТ</string>
 </resources>

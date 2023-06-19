@@ -29,7 +29,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginHorizontal="10dp"
-            app:tint="#FFE9E9E9"/>
+            app:tint="@color/default_icon_color"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,13 +43,13 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:background="@drawable/left_arrow_icon"
-                android:backgroundTint="@color/white"/>
+                android:backgroundTint="@color/default_icon_color"/>
             <TextView
                 android:id="@+id/generationName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                tools:text="ГРАДИЕНТ"
+                tools:text="@string/gradient_caps"
                 android:textSize="21sp"
                 android:textColor="@color/white"
                 android:fontFamily="@font/jura_bold"/>
@@ -59,7 +59,7 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:background="@drawable/right_arrow_icon"
-                android:backgroundTint="@color/white"/>
+                android:backgroundTint="@color/default_icon_color"/>
         </LinearLayout>
 
         <ImageButton
@@ -73,7 +73,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@color/transparent"
             android:layout_marginHorizontal="10dp"
-            app:tint="#FFE9E9E9"/>
+            app:tint="@color/default_icon_color"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -27,7 +27,7 @@
         android:layout_marginBottom="3dp"
         app:layout_constraintBottom_toBottomOf="@id/cardImage"
         app:layout_constraintEnd_toEndOf="@id/cardImage"
-        tools:tint="#FF3636"/>
+        tools:tint="@color/red_like_not_active"/>
 
     <TextView
         android:id="@+id/cardText"
