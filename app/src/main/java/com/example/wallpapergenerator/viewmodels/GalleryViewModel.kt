@@ -72,27 +72,51 @@ class GalleryViewModel @Inject constructor(
         if (netRepository.getIsNetConnection()){
             if (!isWaiting) {
                 if (expandedWallpaperFragment.wallpaperData!!.isLiked) {
+                    fun onDeleted(isSuccess : Boolean) {
+                        if (isSuccess) {
+                            expandedWallpaperFragment.wallpaperData!!.isLiked = false
+                            expandedWallpaperFragment.wallpaperData!!.likes--
+                            expandedWallpaperFragment.wallpaperData!!.run { onLiked(this) }
+                            expandedWallpaperFragment.exportImageFragment.dislike()
+                            toastMessageDrawer.showMessage(resourceRepository.getString(R.string.message_removed_from_gallery))
+                        } else {
+                            toastMessageDrawer.showMessage(resourceRepository.getString(R.string.error_not_removed))
+                        }
+                    }
                     isWaiting = true
                     viewModelScope.launch(Dispatchers.IO) {
-                        netRepository.dislikeImage(expandedWallpaperFragment.wallpaperData!!.id)
+                        val isSuccess = netRepository.dislikeImage(expandedWallpaperFragment.wallpaperData!!.id)
+
+                        withContext(Dispatchers.Main) {
+                            onDeleted(isSuccess)
+                        }
+
                         isWaiting = false
                     }
-                    expandedWallpaperFragment.wallpaperData!!.isLiked = false
-                    expandedWallpaperFragment.wallpaperData!!.likes --
-                    expandedWallpaperFragment.wallpaperData!!.run { onLiked(this) }
-                    expandedWallpaperFragment.exportImageFragment.dislike()
-                    toastMessageDrawer.showMessage(resourceRepository.getString(R.string.message_removed_from_gallery))
+
                 } else {
+                    fun onSaved(isSuccess : Boolean) {
+                        if (isSuccess) {
+                            expandedWallpaperFragment.wallpaperData!!.isLiked = true
+                            expandedWallpaperFragment.wallpaperData!!.likes ++
+                            expandedWallpaperFragment.wallpaperData!!.run { onLiked(this) }
+                            expandedWallpaperFragment.exportImageFragment.like()
+                            toastMessageDrawer.showMessage(resourceRepository.getString(R.string.message_saved_to_gallery))
+                        } else {
+                            toastMessageDrawer.showMessage(resourceRepository.getString(R.string.error_not_saved))
+                        }
+                    }
+
                     isWaiting = true
                     viewModelScope.launch(Dispatchers.IO) {
-                        netRepository.likeImage(expandedWallpaperFragment.wallpaperData!!.id)
+                        val isSuccess = netRepository.likeImage(expandedWallpaperFragment.wallpaperData!!.id)
+
+                        withContext(Dispatchers.Main) {
+                            onSaved(isSuccess)
+                        }
+
                         isWaiting = false
                     }
-                    expandedWallpaperFragment.wallpaperData!!.isLiked = true
-                    expandedWallpaperFragment.wallpaperData!!.likes ++
-                    expandedWallpaperFragment.wallpaperData!!.run { onLiked(this) }
-                    expandedWallpaperFragment.exportImageFragment.like()
-                    toastMessageDrawer.showMessage(resourceRepository.getString(R.string.message_saved_to_gallery))
                 }
             }
         } else {

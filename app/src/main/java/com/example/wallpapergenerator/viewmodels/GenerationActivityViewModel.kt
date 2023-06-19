@@ -55,7 +55,10 @@ class GenerationActivityViewModel @Inject constructor(
         }
         fun onFailed() {
             isWaiting = false
-            toastMessageDrawer.showMessage(resourceRepository.getString(R.string.error_not_saved))
+            if (netRepository.getIsNetConnection())
+                toastMessageDrawer.showMessage(resourceRepository.getString(R.string.error_not_saved))
+            else
+                toastMessageDrawer.showMessage(resourceRepository.getString(R.string.error_no_net_connection))
         }
 
         if(!::currentImage.isInitialized){

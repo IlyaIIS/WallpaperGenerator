@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.example.wallpapergenerator.R
 import com.example.wallpapergenerator.imagegeneration.GenerationType
 import com.example.wallpapergenerator.parameterholders.GalleryParametersHolder
 import com.example.wallpapergenerator.repository.LocalRepository
@@ -38,8 +39,8 @@ interface NetRepository {
     )
 
     suspend fun deleteImageFromGallery(imageId: Int)
-    suspend fun likeImage(imageId: Int)
-    suspend fun dislikeImage(imageId: Int)
+    suspend fun likeImage(imageId: Int): Boolean
+    suspend fun dislikeImage(imageId: Int): Boolean
     suspend fun fetchCollection(parameters: GalleryParametersHolder): List<WallpaperTextData>?
     fun getIsNetConnection(): Boolean
 }
@@ -86,7 +87,7 @@ class NetRepositoryRetrofit @Inject constructor(
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 onFailed()
-                Log.i(TAG, "не удалось сохранить изображение")
+                Log.e(TAG, "Не удалось сохранить изображение")
             }
         })
     }
@@ -95,30 +96,38 @@ class NetRepositoryRetrofit @Inject constructor(
         imageId: Int
     ) {
         try {
-            println("Удаление изображения id: ${imageId}")
+            Log.i(TAG, "Удаление изображения id: ${imageId}")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.deleteImage(imageId.toString(), token)
-            println("Изображение удалено id: ${imageId}")
+            Log.i(TAG, "Изображение удалено id: ${imageId}")
         } catch (e: Exception) {
-            println("Не удалось удалить: ${e.message}")
+            Log.e(TAG, "Не удалось изображение: ${e.message}")
         }
     }
 
-    override suspend fun likeImage(imageId: Int) {
+    override suspend fun likeImage(imageId: Int) : Boolean {
         try {
             Log.i(TAG, "Лайк изображения")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.likeImage(imageId.toString(), token)
+            Log.i(TAG, "Изображение лайкнуто")
+            return true
         } catch (e: Exception) {
+            Log.e(TAG, "Не удалось лайкнуть Изображение")
+            return false
         }
     }
 
-    override suspend fun dislikeImage(imageId: Int) {
+    override suspend fun dislikeImage(imageId: Int) : Boolean {
         try {
-            Log.i(TAG, "Лайк изображения")
+            Log.i(TAG, "Дизлайк изображения")
             val token : String = "Bearer " + localRepository.readToken().toString()
             val response = api.dislikeImage(imageId.toString(), token)
+            Log.i(TAG, "Изображение дизлайкнуто")
+            return true
         } catch (e: Exception) {
+            Log.i(TAG, "Не удалось дизлайкнуть Изображение")
+            return false
         }
     }
 
@@ -153,7 +162,7 @@ class NetRepositoryRetrofit @Inject constructor(
         return if (response.isSuccessful) {
             response.body()
         } else {
-            Log.d(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
+            Log.e(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
             null
         }
     }
@@ -180,8 +189,8 @@ class NetRepositoryRetrofit @Inject constructor(
         return if (response.isSuccessful) {
             response.body()
         } else {
-            Log.d(ContentValues.TAG, response.code().toString())
-            Log.d(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
+            Log.e(ContentValues.TAG, response.code().toString())
+            Log.e(ContentValues.TAG, "Error while fetching cards: " + response.errorBody())
             null
         }
     }
@@ -201,7 +210,7 @@ class NetRepositoryRetrofit @Inject constructor(
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Log.i(TAG, "не удалось выполнить запрос")
+                Log.e(TAG, "Не удалось выполнить запрос")
                 authMessage.value = "Нет доступа к сети"
             }
         })
@@ -226,7 +235,10 @@ class NetRepositoryRetrofit @Inject constructor(
                 Log.i(TAG, "сохраненные данные (token): " + localRepository.readToken())
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                regMessage.value = "не удалось выполнить запрос"
+                if (getIsNetConnection())
+                    regMessage.value = context.getString(R.string.error_request_failed)
+                else
+                    regMessage.value = context.getString(R.string.error_no_net_connection)
             }
         })
     }

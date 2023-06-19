@@ -49,6 +49,8 @@
 
     <string name="error_no_net_connection">Отсутствует подключение к интернету</string>
     <string name="error_not_saved">Не удалось сохранить</string>
+    <string name="error_not_removed">Не удалось удалить из галереи </string>
+    <string name="error_request_failed">Не удалось выполнить запрос</string>
     <string name="warning_wait_for_generation">Дождитесь генерации</string>
     <string name="warning_wait">Подождите</string>
     <string name="message_saved_to_gallery">Сохранено в галерею</string>

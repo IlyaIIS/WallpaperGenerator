@@ -186,11 +186,10 @@ class GenerationActivity : AppCompatActivity() {
                     drawImage(pixels)
                 }
             }
-            println("DRAWING TIME: $result")
+            Log.i(TAG, "DRAWING TIME: $result")
         }
 
         fun defineHourglassIndicator() {
-            Log.i(TAG, "INDICATOR")
             if (isWaitForImage) {
                 drawHourglassIndicator(IndicatorState.WAITING_FOR_CHANGE_IMAGE)
             } else if (viewModel.nextImages.count() == 0) {
@@ -210,7 +209,7 @@ class GenerationActivity : AppCompatActivity() {
                     val result = measureTimeMillis {
                         viewModel.nextImages.addLast(getPixels())
                     }
-                    println("GENERATION TIME: $result")
+                    Log.i(TAG, "GENERATION TIME: $result")
 
                     if (shouldStopGeneration) {
                         shouldStopGeneration = false
