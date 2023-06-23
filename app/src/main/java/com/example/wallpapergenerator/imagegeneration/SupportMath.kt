@@ -7,6 +7,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 class SupportMath {
     companion object {
@@ -22,8 +23,12 @@ class SupportMath {
                     Color.blue(fromColor).toFloat(), Color.blue(toColor).toFloat(), k
                 ).toInt())
         }
-        fun getGrayColor(lightness: Int): Int {
+        fun getGrayColor(lightness: Int) : Int {
             return Color.rgb(lightness, lightness, lightness)
+        }
+
+        fun getRndColor() : Int {
+            return Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255))
         }
 
         fun rotateAround(point: Point, pivot: Point, angle: Float) : Point {

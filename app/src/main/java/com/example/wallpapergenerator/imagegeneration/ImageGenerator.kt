@@ -9,6 +9,8 @@ enum class GenerationType {
     SHAPES,
     INTERFERENCE,
     FRACTALS,
+    //NOISE,
+    POLYGONS,
     //LANDSCAPES
 }
 
@@ -17,6 +19,8 @@ val GenerationTypeNames = arrayOf(
     "Фигуры",
     "Интерференция",
     "Фракталы",
+    //"Шум",
+    "Полигоны"
     //"Пейзажи"
 )
 

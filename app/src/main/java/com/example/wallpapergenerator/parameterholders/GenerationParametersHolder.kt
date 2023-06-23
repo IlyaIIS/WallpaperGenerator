@@ -1,10 +1,12 @@
 package com.example.wallpapergenerator.parameterholders
 
 import android.graphics.Color
+import com.example.wallpapergenerator.SupportTools.Companion.toInt
 import com.example.wallpapergenerator.adapters.generationsettingsadapter.*
 import com.example.wallpapergenerator.imagegeneration.FractalImageGenerator
 import com.example.wallpapergenerator.imagegeneration.GenerationType
 import com.example.wallpapergenerator.imagegeneration.GradientImageGenerator
+import com.example.wallpapergenerator.imagegeneration.PolygonImageGenerator
 import com.example.wallpapergenerator.repository.LocalRepository
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -56,6 +58,17 @@ data class ShapeParameters(
     var ablePlanes: Boolean,
 )
 
+data class PolygonParameters(
+    var minPolygonCount: Int,
+    var maxPolygonCount: Int,
+    var distancingType: PolygonImageGenerator.DistancingType,
+    var coloringType: PolygonImageGenerator.ColoringType,
+    var isTopColorRandom: Boolean,
+    var topColor: Int,
+    var isBottomColorRandom: Boolean,
+    var bottomColor: Int,
+)
+
 class GenerationParametersHolder @Inject constructor(private val repository: LocalRepository) : ParameterHolder() {
     lateinit var currentGenerationType: GenerationType
     var onParameterChanged: () -> Unit = { }
@@ -99,11 +112,22 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
         true, true, true, true, true,
     )
 
+    var polygonParameters = PolygonParameters(
+        10,30,
+        PolygonImageGenerator.DistancingType.EUCLIDIAN,
+        PolygonImageGenerator.ColoringType.RANDOM,
+        true,
+        Color.WHITE,
+        true,
+        Color.BLACK,
+    )
+
     private fun saveParameters() {
         repository.saveSetting(interferenceParameters::class.simpleName!!, Gson().toJson(interferenceParameters))
         repository.saveSetting(gradientParameters::class.simpleName!!, Gson().toJson(gradientParameters))
         repository.saveSetting(fractalParameters::class.simpleName!!, Gson().toJson(fractalParameters))
         repository.saveSetting(shapeParameters::class.simpleName!!, Gson().toJson(shapeParameters))
+        repository.saveSetting(polygonParameters::class.simpleName!!, Gson().toJson(polygonParameters))
     }
 
     fun loadParameters() {
@@ -111,12 +135,13 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
         gradientParameters = Gson().fromJson(repository.readSettingString(gradientParameters::class.simpleName!!), GradientParameters::class.java) ?: gradientParameters
         fractalParameters = Gson().fromJson(repository.readSettingString(fractalParameters::class.simpleName!!), FractalParameters::class.java) ?: fractalParameters
         shapeParameters = Gson().fromJson(repository.readSettingString(shapeParameters::class.simpleName!!), ShapeParameters::class.java) ?: shapeParameters
+        polygonParameters = Gson().fromJson(repository.readSettingString(polygonParameters::class.simpleName!!), PolygonParameters::class.java) ?: polygonParameters
     }
     override fun getParameters(updateParameters: () -> Unit) : List<SettingsParameter> {
         lateinit var params: List<SettingsParameter>
+        params = mutableListOf<SettingsParameter>()
 
         if (currentGenerationType == GenerationType.INTERFERENCE) {
-            params = mutableListOf()
             params.add(
                 CheckboxParameter(
                     "Случайное количество слоёв",
@@ -189,7 +214,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
             }
 
         } else if (currentGenerationType == GenerationType.SHAPES) {
-            params = mutableListOf<SettingsParameter>(
+            params.add(
                 CheckboxParameter(
                     "Случайный фон",
                     shapeParameters.isBackgroundColorRandom
@@ -288,7 +313,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
             )
 
         } else if (currentGenerationType == GenerationType.GRADIENTS) {
-            params = mutableListOf<SettingsParameter>(
+            params.add(
                 DropdownParameter(
                     "Тип",
                     gradientParameters.gradientType.ordinal,
@@ -355,7 +380,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
             }
 
         } else if (currentGenerationType == GenerationType.FRACTALS) {
-            params = mutableListOf<SettingsParameter>(
+            params.add(
                 DropdownParameter(
                     "Фрактал",
                     fractalParameters.fractalType.ordinal,
@@ -490,6 +515,97 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                             fractalParameters.bottomColor,
                         ) { color ->
                             fractalParameters.bottomColor = color
+                            saveParameters()
+                            onParameterChanged()
+                        }
+                    )
+                }
+            }
+        //} else if (currentGenerationType == GenerationType.NOISE) {
+
+        } else if (currentGenerationType == GenerationType.POLYGONS) {
+            params.add(
+                InputDigitRangeParameter(
+                    "Количество",
+                    polygonParameters.minPolygonCount,
+                    polygonParameters.maxPolygonCount,
+                    2, 1000
+                ) { numberFrom, numberTo ->
+                    polygonParameters.minPolygonCount = numberFrom
+                    polygonParameters.maxPolygonCount = numberTo
+                    saveParameters()
+                    onParameterChanged()
+                }
+            )
+
+            params.add(
+                DropdownParameter(
+                    "Тип расстояния",
+                    polygonParameters.distancingType.toInt(),
+                    PolygonImageGenerator.DistancingTypeNames
+                ) { optionNum ->
+                    polygonParameters.distancingType = optionNum.toEnum()
+                    saveParameters()
+                    updateParameters()
+                    onParameterChanged()
+                }
+            )
+
+            params.add(
+                DropdownParameter(
+                    "Тип закраски",
+                    polygonParameters.coloringType.toInt(),
+                    PolygonImageGenerator.ColoringTypeNames
+                ) { optionNum ->
+                    polygonParameters.coloringType = optionNum.toEnum()
+                    saveParameters()
+                    updateParameters()
+                    onParameterChanged()
+                }
+            )
+
+            if (polygonParameters.coloringType == PolygonImageGenerator.ColoringType.RANDOM_GRADIENT) {
+                params.add(
+                    CheckboxParameter(
+                        "Случайный верхний цвет",
+                        polygonParameters.isTopColorRandom
+                    ) { isChecked ->
+                        polygonParameters.isTopColorRandom = isChecked
+                        updateParameters()
+                        saveParameters()
+                        onParameterChanged()
+                    }
+                )
+                if (!polygonParameters.isTopColorRandom)
+                    params.add(
+                        ColorParameter(
+                            "Верхний цвет",
+                            polygonParameters.topColor,
+                        ) { color ->
+                            polygonParameters.topColor = color
+                            saveParameters()
+                            onParameterChanged()
+                        }
+                    )
+
+                params.add(
+                    CheckboxParameter(
+                        "Случайный нижний цвет",
+                        polygonParameters.isBottomColorRandom
+                    ) { isChecked ->
+                        polygonParameters.isBottomColorRandom = isChecked
+                        updateParameters()
+                        saveParameters()
+                        onParameterChanged()
+                    }
+                )
+                if (!polygonParameters.isBottomColorRandom) {
+                    params.add(
+                        ColorParameter(
+                            "Нижний цвет",
+                            polygonParameters.bottomColor,
+                        ) { color ->
+                            polygonParameters.bottomColor = color
                             saveParameters()
                             onParameterChanged()
                         }

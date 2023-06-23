@@ -72,7 +72,7 @@
             app:cardCornerRadius="50dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="130dp"
+            android:layout_marginTop="110dp"
             android:padding="10dp"
             android:backgroundTint="@color/transparent">
             <com.github.furkankaplan.fkblurview.FKBlurView
@@ -87,8 +87,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingHorizontal="40dp"
-                    android:paddingVertical="60dp"
-                    android:layout_marginTop="100dp">
+                    android:paddingVertical="60dp">
 
                     <Button
                         android:id="@+id/generationButtonGradients"
@@ -126,6 +125,16 @@
                         android:background="@drawable/base_button"
                         android:layout_marginTop="20dp"
                         android:text="@string/generator_fractals"
+                        android:fontFamily="@font/jura_bold"
+                        android:textSize="18sp"/>
+
+                    <Button
+                        android:id="@+id/generationButtonPolygons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/base_button"
+                        android:layout_marginTop="20dp"
+                        android:text="Полигоны"
                         android:fontFamily="@font/jura_bold"
                         android:textSize="18sp"/>
                 </LinearLayout>

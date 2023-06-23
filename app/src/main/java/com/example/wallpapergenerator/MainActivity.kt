@@ -68,6 +68,12 @@ class MainActivity : AppCompatActivity() {
         binding.generationButtonFractals.setOnClickListener {
             goToGenerationAction(GenerationType.FRACTALS)
         }
+/*        binding.generationButtonNoise.setOnClickListener {
+            goToGenerationAction(GenerationType.NOISE)
+        }*/
+        binding.generationButtonPolygons.setOnClickListener {
+            goToGenerationAction(GenerationType.POLYGONS)
+        }
     }
 
     fun goToGenerationAction(generationType: GenerationType) {

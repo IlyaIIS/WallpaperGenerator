@@ -152,6 +152,8 @@ class GenerationActivity : AppCompatActivity() {
             GenerationType.SHAPES -> getString(R.string.generator_shapes)
             GenerationType.INTERFERENCE -> getString(R.string.generator_interference)
             GenerationType.FRACTALS -> getString(R.string.generator_fractals)
+            //GenerationType.NOISE -> "Шум"
+            GenerationType.POLYGONS -> "Полигоны"
             else -> throw NotImplementedError()
         }
     }
@@ -175,6 +177,8 @@ class GenerationActivity : AppCompatActivity() {
                 GenerationType.SHAPES -> ShapeImageGenerator.generateImage(mainImage.width, mainImage.height, parameters.shapeParameters)
                 GenerationType.INTERFERENCE -> InterferenceImageGenerator.generateImage(mainImage.width, mainImage.height, parameters.interferenceParameters)
                 GenerationType.FRACTALS -> FractalImageGenerator.generateImage(mainImage.width, mainImage.height, parameters.fractalParameters)
+                //GenerationType.NOISE -> NoiseImageGenerator(mainImage.width, mainImage.height).generateImage()
+                GenerationType.POLYGONS -> PolygonImageGenerator(mainImage.width, mainImage.height).generateImage(parameters.polygonParameters)
                 else -> throw NotImplementedError()
             }
         }
