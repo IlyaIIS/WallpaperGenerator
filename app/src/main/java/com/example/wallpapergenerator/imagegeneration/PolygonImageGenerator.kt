@@ -4,6 +4,9 @@ import com.example.wallpapergenerator.SupportTools.Companion.pmap
 import com.example.wallpapergenerator.parameterholders.PolygonParameters
 import com.google.android.material.math.MathUtils
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 class PolygonImageGenerator(val xSize: Int, val ySize: Int) {
@@ -30,15 +33,32 @@ class PolygonImageGenerator(val xSize: Int, val ySize: Int) {
         val topColor = if (parameters.isTopColorRandom) SupportMath.getRndColor() else parameters.topColor
         val bottomColor = if (parameters.isBottomColorRandom) SupportMath.getRndColor() else parameters.bottomColor
         val polygonCount = Random.nextInt(parameters.minPolygonCount, parameters.maxPolygonCount)
-        val plates = MutableList(polygonCount) { Polygon(
-            Random.nextInt(xSize).toFloat(),
-            Random.nextInt(ySize).toFloat(),
-            if (parameters.coloringType == ColoringType.RANDOM){
-                SupportMath.getRndColor()
-            }
-            else {
-                SupportMath.colorLerp(bottomColor, topColor, it.toFloat() / polygonCount)
-            }
+        val radialCenterX = Random.nextInt(xSize).toFloat()
+        val radialCenterY = Random.nextInt(ySize).toFloat()
+        val radialDist = sqrt(
+            max(xSize - radialCenterX, xSize - (xSize - radialCenterX)).toDouble().pow(2.0) +
+            max(ySize - radialCenterY, ySize - (ySize - radialCenterY)).toDouble().pow(2.0)
+        ).toFloat()
+        val plates = MutableList(polygonCount) {
+            val plateX = Random.nextInt(xSize).toFloat()
+            val plateY = Random.nextInt(ySize).toFloat()
+            Polygon(
+                plateX,
+                plateY,
+                when(parameters.coloringType) {
+                    ColoringType.RANDOM -> SupportMath.getRndColor()
+                    ColoringType.RANDOM_GRADIENT -> SupportMath.colorLerp(bottomColor, topColor, it.toFloat() / polygonCount)
+                    ColoringType.LINEAR_GRADIENT -> {
+                        val xK = Random.nextFloat()
+                        val yK = 1 - xK
+                        SupportMath.colorLerp(bottomColor, topColor, plateX/xSize*xK + plateY/ySize*yK)
+                    }
+                    ColoringType.RADIAL_GRADIENT -> {
+                        SupportMath.colorLerp(bottomColor, topColor,
+                            MathUtils.dist(plateX, plateY, radialCenterX, radialCenterY) / radialDist)
+                    }
+                    else -> throw NotImplementedError()
+                }
             )
         }
         (0 until ySize).toList().pmap { y ->
@@ -84,6 +104,8 @@ class PolygonImageGenerator(val xSize: Int, val ySize: Int) {
     enum class ColoringType {
         RANDOM,
         RANDOM_GRADIENT,
+        LINEAR_GRADIENT,
+        RADIAL_GRADIENT
     }
     enum class DistancingType {
         EUCLIDIAN,
@@ -91,8 +113,10 @@ class PolygonImageGenerator(val xSize: Int, val ySize: Int) {
     }
     companion object {
         val ColoringTypeNames = arrayOf(
-            "Случайны",
+            "Случайный",
             "Случайный градиент",
+            "Линейный градиент",
+            "Круговой градиент"
         )
         val DistancingTypeNames = arrayOf(
             "Евклидово",

@@ -564,7 +564,7 @@ class GenerationParametersHolder @Inject constructor(private val repository: Loc
                 }
             )
 
-            if (polygonParameters.coloringType == PolygonImageGenerator.ColoringType.RANDOM_GRADIENT) {
+            if (polygonParameters.coloringType != PolygonImageGenerator.ColoringType.RANDOM) {
                 params.add(
                     CheckboxParameter(
                         "Случайный верхний цвет",
